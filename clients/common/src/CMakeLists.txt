@@ -13,4 +13,4 @@ set(opentera_lib_client_common_srcs
 qt_wrap_cpp(opentera_lib_client_common_moc_srcs ${opentera_lib_client_common_headers})
 
 add_library(opentera_lib_client_common STATIC ${opentera_lib_client_common_headers} ${opentera_lib_client_common_srcs} ${opentera_lib_client_common_moc_srcs})
-target_link_libraries(opentera_lib_client_common PUBLIC Qt6::Core)
+target_link_libraries(opentera_lib_client_common PUBLIC Qt${QT_VERSION_MAJOR}::Core)
