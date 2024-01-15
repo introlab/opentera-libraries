@@ -1,4 +1,4 @@
-find_package(Qt6Core REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR}Core REQUIRED)
 
 set(opentera_lib_client_common_headers
     BaseComManager.h
