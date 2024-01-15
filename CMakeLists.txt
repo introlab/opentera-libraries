@@ -26,6 +26,9 @@ else()
     qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 endif()
 
+
+add_subdirectory(clients)
+
 include(GNUInstallDirs)
 install(TARGETS opentera-libraries
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
