@@ -22,8 +22,10 @@ class BaseComManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit BaseComManager(QUrl serverUrl = QUrl(), QObject *parent = nullptr);
+    explicit BaseComManager(QUrl serverUrl, QObject *parent = nullptr);
     ~BaseComManager();
+
+    void enableDebugLogs(const bool &enable);
 
     virtual void doGet(const QString &path, const QUrlQuery &query_args = QUrlQuery(), const bool &use_token=true);
     virtual void doPost(const QString &path, const QString &post_data, const bool &use_token=true);
@@ -71,6 +73,13 @@ protected:
     QNetworkCookieJar       m_cookieJar;
 
     bool                    m_loggingInProgress; // Indicates a login procedure is going on
+
+// Enable debug mode by default if running a debug build
+#ifdef QT_DEBUG
+    bool                    m_enableDebug = true;
+#else
+    bool                    m_enableDebug = false;
+#endif
 
 
     QMap<QNetworkReply*, DownloadingFile*>      m_currentDownloads;

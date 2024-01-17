@@ -16,8 +16,7 @@ set(opentera_libs_client_common_srcs
     DownloadingFile.cpp
 )
 
-add_definitions(-DOPENTERA_CLIENT_NAME="${CMAKE_PROJECT_NAME}")
-add_definitions(-DOPENTERA_CLIENT_VERSION="1.0")
+set(OPENTERA_LIBS_COMMON_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "doc string")
 
 #This will generate moc_* for Qt
 qt_wrap_cpp(opentera_libs_client_common_moc_srcs ${opentera_libs_client_common_headers})

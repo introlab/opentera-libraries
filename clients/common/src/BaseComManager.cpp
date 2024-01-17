@@ -54,6 +54,11 @@ BaseComManager::~BaseComManager()
 
 }
 
+void BaseComManager::enableDebugLogs(const bool &enable)
+{
+    m_enableDebug = enable;
+}
+
 void BaseComManager::doGet(const QString &path, const QUrlQuery &query_args, const bool &use_token)
 {
     QUrl query = m_serverUrl;
@@ -72,13 +77,12 @@ void BaseComManager::doGet(const QString &path, const QUrlQuery &query_args, con
     emit waitingForReply(true);
     emit querying(path);
 
-    // TODO SIGNAL ERROR
-    /*
-    if (!query_args.isEmpty())
-        LOG_DEBUG("GET: " + path + " with " + query_args.toString(), QString(this->metaObject()->className()) + "::doQuery");
-    else
-        LOG_DEBUG("GET: " + path, QString(this->metaObject()->className()) + "::doQuery");
-    */
+    if (m_enableDebug){
+        if (!query_args.isEmpty())
+            qDebug() << "GET - " << QString(this->metaObject()->className()) << ": " + path + " with " + query_args.toString();
+        else
+            qDebug() << "GET - " << QString(this->metaObject()->className()) << ": " + path;
+    }
 }
 
 void BaseComManager::doPost(const QString &path, const QString &post_data, const bool &use_token)
@@ -104,13 +108,16 @@ void BaseComManager::doPost(const QUrl &full_url, const QString &post_data, cons
     emit waitingForReply(true);
 
 
-// TODO SIGNAL ERROR
-#ifndef QT_NO_DEBUG
-    //LOG_DEBUG("POST: " + full_url.toString() + ", with " + post_data, QString(this->metaObject()->className()) + "::doPost");
-#else
-    // Strip data from logging in release, since this might contains passwords!
-    //LOG_DEBUG("POST: " + full_url.toString(), QString(this->metaObject()->className()) + "::doPost");
-#endif
+    if (m_enableDebug){
+    #ifndef QT_NO_DEBUG
+        qDebug() << "POST - " << QString(this->metaObject()->className()) + ": " << full_url.toString() << ", with " << post_data;
+        //LOG_DEBUG("POST: " + full_url.toString() + ", with " + post_data, QString(this->metaObject()->className()) + "::doPost");
+    #else
+        // Strip data from logging in release, since this might contains passwords!
+        qDebug() << "POST - " << QString(this->metaObject()->className()) + ": " << full_url.toString();
+        //LOG_DEBUG("POST: " + full_url.toString(), QString(this->metaObject()->className()) + "::doPost");
+    #endif
+    }
 }
 
 void BaseComManager::doDelete(const QString &path, const int &id, const bool &use_token)
@@ -128,8 +135,9 @@ void BaseComManager::doDelete(const QString &path, const int &id, const bool &us
     emit waitingForReply(true);
     emit deleting(path);
 
-    //TODO SIGNAL ERROR
-    //LOG_DEBUG("DELETE: " + path + ", with id=" + QString::number(id), QString(this->metaObject()->className()) + "::doDelete");
+    if (m_enableDebug)
+        qDebug() << "DELETE - " << QString(this->metaObject()->className()) + ": " << path << ", with id=" << QString::number(id);
+
 }
 
 void BaseComManager::doDownload(const QString &path, const QString &save_path, const QString& download_uuid, const QString &save_filename, const QUrlQuery &query_args, const bool &use_token)
@@ -350,18 +358,13 @@ void BaseComManager::onNetworkFinished(QNetworkReply *reply){
     {
         // Process network reply
         if (!processNetworkReply(reply)){
-            //TODO SIGNAL ERROR
-            //LOG_WARNING("Unhandled reply - " + reply->url().path(), QString(this->metaObject()->className()) + "::onNetworkFinished");
+            qWarning() << QString(this->metaObject()->className()) << "::onNetworkFinished: " << "Unhandled reply - " << reply->url().path();
         }
     }
     else {
         QByteArray reply_data = reply->readAll();
 
         QString reply_msg = QString::fromUtf8(reply_data).replace("\"", "");
-
-        // Convert reply from unicode string
-
-
 
         // Convert in-string unicode characters
         // REMOVE THIS AND USE QSTRING functions
@@ -375,9 +378,10 @@ void BaseComManager::onNetworkFinished(QNetworkReply *reply){
         int status_code = -1;
         if (reply->attribute( QNetworkRequest::HttpStatusCodeAttribute).isValid())
             status_code = reply->attribute( QNetworkRequest::HttpStatusCodeAttribute).toInt();
-        //qDebug() << "ComManager::onNetworkFinished - Reply error: " << reply->error() << ", Reply message: " << reply_msg;
-        //LOG_ERROR(QString(this->metaObject()->className()) + "::onNetworkFinished - Reply error: " + reply->errorString() + ", Reply message: " + reply_msg,
-        //          QString(this->metaObject()->className()) + "::onNetworkFinished");
+
+        if (m_enableDebug)
+            qWarning() << QString(this->metaObject()->className()) << "::onNetworkFinished - Reply error: " << reply->errorString() << ", Reply message: " << reply_msg;
+
         /*if (reply_msg.isEmpty())
             reply_msg = reply->errorString();*/
 
@@ -404,20 +408,23 @@ void BaseComManager::onNetworkFinished(QNetworkReply *reply){
 }
 
 #ifndef OPENTERA_WEBASSEMBLY
-void BaseComManager::onNetworkSslErrors(QNetworkReply *reply, const QList<QSslError> &errors){
-    Q_UNUSED(reply)
-    Q_UNUSED(errors)
-    //LOG_WARNING("Ignoring SSL errors, this is unsafe", QString(this->metaObject()->className()) + "::onNetworkSslErrors");
+void BaseComManager::onNetworkSslErrors(QNetworkReply *reply, const QList<QSslError> &errors){    
+    qWarning() << QString(this->metaObject()->className()) << "::onNetworkSslErrors: Ignoring SSL errors, this is unsafe - please make sure you are connecting to a debug server.";
+
     reply->ignoreSslErrors();
-    for(const QSslError &error : errors){
-        //LOG_WARNING("Ignored: " + error.errorString(), QString(this->metaObject()->className()) + "::onNetworkSslErrors");
+    if (m_enableDebug){
+        for(const QSslError &error : errors){
+            qWarning() << QString(this->metaObject()->className()) << "::onNetworkSslErrors: Ignored " << error.errorString();
+        }
     }
 
 }
 
 void BaseComManager::onNetworkEncrypted(QNetworkReply *reply){
     Q_UNUSED(reply)
-    //qDebug() << QString(this->metaObject()->className()) + "::onNetworkEncrypted";
+    if (m_enableDebug){
+        qDebug() << QString(this->metaObject()->className()) + "::onNetworkEncrypted";
+    }
 }
 #endif
 
@@ -428,12 +435,14 @@ void BaseComManager::onNetworkAuthenticationRequired(QNetworkReply *reply, QAuth
     // If we are logging in, credentials were already sent, and if we get here, it's because they were
     // rejected
     if (!m_settedCredentials && !m_loggingInProgress){
-        //LOG_DEBUG("Sending authentication request...", QString(this->metaObject()->className()) + "::onNetworkAuthenticationRequired");
+        if (m_enableDebug)
+            qDebug() << QString(this->metaObject()->className()) << "::onNetworkAuthenticationRequired: Sending authentification request";
         authenticator->setUser(m_username);
         authenticator->setPassword(m_password);
         m_settedCredentials = true; // We setted the credentials in authentificator
     }else{
-        //LOG_DEBUG("Authentication error", QString(this->metaObject()->className()) + "::onNetworkAuthenticationRequired");
+        if (m_enableDebug)
+            qWarning() << QString(this->metaObject()->className()) << "::onNetworkAuthenticationRequired: Authentication error";
         emit networkAuthFailed();
     }
 }
