@@ -31,3 +31,7 @@
 *.out
 *.app
 build-cpp-Desktop_Qt_6_4_2_MinGW_64_bit-Debug
+.idea
+venv
+*.pyc
+/CMakeLists.txt.user

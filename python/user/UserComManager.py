@@ -8,7 +8,7 @@ from common.BaseComManager import BaseComManager
 
 class UserComManager(BaseComManager):
 
-    def __init__(self, server_url: str, server_port: int, allow_insecure = False):
+    def __init__(self, server_url: str, server_port: int, allow_insecure=False):
         super().__init__(server_url=server_url, server_port=server_port, allow_insecure=allow_insecure)
 
     def login_with_token(self, token: str) -> Response | None:
