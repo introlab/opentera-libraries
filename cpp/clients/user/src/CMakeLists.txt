@@ -6,11 +6,13 @@ set(opentera_libs_client_user_headers
     UserWebAPI.h
     UserComManager.h
     UserWebSocketManager.h
+    UserClient.h
 )
 
 set(opentera_libs_client_user_srcs
     UserComManager.cpp
     UserWebSocketManager.cpp
+    UserClient.cpp
 )
 
 include_directories(
