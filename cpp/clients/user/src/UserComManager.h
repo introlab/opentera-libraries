@@ -21,10 +21,13 @@ class UserComManager : public QObject
 public:
     explicit UserComManager(QObject *parent = nullptr);
 
+    bool isConnected();
+
 public slots:
 
     void loginToServer(QString username, QString password, QString server_name);
     void login();
+    void logout();
     void getOnlineParticipants();
     void getOnlineDevices();
     void getSessionTypes();
@@ -47,6 +50,9 @@ signals:
     void loginSucceeded();
     void loginFailed(const QString &errorMessage);
 
+    void logoutSucceeded();
+    void logoutFailed();
+
     void participantOnline(const int id_participant, const int id_participant_group, const int id_project,
                            const QString &participant_email, const QString &participant_name, const bool participant_token_enabled,
                            const QString &participant_uuid, const bool participant_online, const bool participant_busy);
@@ -63,16 +69,6 @@ signals:
                               const QString &session_type_color, const QString &session_type_name, const bool session_type_online,
                               const QString &session_type_service_key, const QString &session_type_service_uuid);
 
-
-    void sessionStarted(const int id_session, const int id_session_type, const QString &session_key,
-                        const QString &session_name, const QString &session_uuid, const QString &session_start_datetime, const int session_duration);
-
-    void sessionStartError(const QString &message);
-
-    void sessionStopped(const int id_session, const int id_session_type, const QString &session_key,
-                        const QString &session_name, const QString &session_uuid, const QString &session_start_datetime, const int session_duration);
-
-    void sessionStopError(const QString &message);
 
     void tokenRefreshed(const QString &token);
 
@@ -97,7 +93,6 @@ private:
     QUrl m_serverUrl;
     QTimer *m_refreshTokenTimer;
 
-
     QNetworkReply* _doPost(const QUrl &url, const QUrlQuery &query_args = QUrlQuery(), const QString &data = QString(), bool use_token = true);
     QNetworkReply* _doGet(const QUrl &url, const QUrlQuery &query_args = QUrlQuery(), bool use_token = true);
     void _setRequestLanguage(QNetworkRequest &request);
@@ -107,6 +102,7 @@ private:
     void _startRefreshTokenTimer();
     void _stopRefreshTokenTimer();
     void _refreshToken();
+
 };
 
 #endif // UserComManager_H

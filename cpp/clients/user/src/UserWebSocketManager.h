@@ -17,6 +17,8 @@ public:
     void connectTo(const QUrl &url);
     void close();
 
+    bool isConnected();
+
 signals:
 
 private slots:

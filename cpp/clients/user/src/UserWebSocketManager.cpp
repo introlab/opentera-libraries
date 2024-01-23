@@ -28,6 +28,15 @@ void UserWebSocketManager::close()
     }
 }
 
+bool UserWebSocketManager::isConnected()
+{
+    if (m_websocket)
+    {
+        return m_websocket->state() == QAbstractSocket::ConnectedState;
+    }
+    return false;
+}
+
 void UserWebSocketManager::onBinaryMessageReceived(const QByteArray &message)
 {
     qDebug() << "onBinaryMessageReceived" << message;

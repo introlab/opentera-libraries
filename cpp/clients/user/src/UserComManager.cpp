@@ -27,6 +27,16 @@ UserComManager::UserComManager(QObject *parent)
 
 }
 
+bool UserComManager::isConnected()
+{
+    if (m_websocketManager)
+    {
+        return m_websocketManager->isConnected();
+    }
+
+    return false;
+}
+
 void UserComManager::loginToServer(QString username, QString password, QString server_name)
 {
     m_username = username;
@@ -74,8 +84,6 @@ void UserComManager::login()
                         QString websocketUrl = jsonObject["websocket_url"].toString();
                         qDebug() << "websocket_url: " << websocketUrl;
                         _connectWebSocket(QUrl(websocketUrl));
-
-
                         emit loginSucceeded();
                         _startRefreshTokenTimer();
                     }
@@ -91,6 +99,46 @@ void UserComManager::login()
                 reply->deleteLater();
             });
 
+
+
+}
+
+void UserComManager::logout()
+{
+    QUrl url(m_serverUrl);
+    url.setPath(WEB_LOGOUT_PATH);
+
+    QUrlQuery args; // empty
+
+    QNetworkReply* reply = _doGet(url, args, true);
+
+    //Finished lambda
+    connect(reply, &QNetworkReply::finished, this, [reply, this]()
+            {
+                //QByteArray responseData = reply->readAll();
+                //qDebug() << responseData;
+                QVariant statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+
+                if (statusCode.toInt() != 200)
+                {
+                    qDebug() << "Cannot logout";
+                    emit logoutFailed();
+                    return;
+                }
+
+                // Stop timer
+                m_refreshTokenTimer->stop();
+
+                //Disconnect websocket
+                m_websocketManager->close();
+
+                //Emit signal
+                emit logoutSucceeded();
+
+                //Done with reply
+                reply->deleteLater();
+
+            });
 
 
 }
