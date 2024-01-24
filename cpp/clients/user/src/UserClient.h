@@ -12,52 +12,53 @@ class UserClient : public QObject
     QML_ELEMENT
     QML_SINGLETON
 
+    Q_PROPERTY(QString username READ getUsername WRITE setUsername NOTIFY usernameChanged)
+    Q_PROPERTY(QString password READ getPassword WRITE setPassword NOTIFY passwordChanged)
+    Q_PROPERTY(QUrl url READ getServerUrl WRITE setServerUrl NOTIFY serverUrlChanged)
+
 public:
 
-    explicit UserClient(QObject *parent = nullptr)
-        :   m_comManager(nullptr)
-    {
-        m_comManager = new UserComManager(this);
-        QObject::connect(m_comManager, &UserComManager::loginSucceeded, this, &UserClient::loginSucceeded);
-        QObject::connect(m_comManager, &UserComManager::loginFailed, this, &UserClient::loginFailed);
+    explicit UserClient(QObject *parent = nullptr);
+    virtual ~UserClient();
 
-        QObject::connect(m_comManager, &UserComManager::logoutSucceeded, this, &UserClient::logoutSucceeded);
-        QObject::connect(m_comManager, &UserComManager::logoutFailed, this, &UserClient::logoutFailed);
+    Q_INVOKABLE void connect(const QUrl &url, const QString &username, const QString &password);
+    Q_INVOKABLE void disconnect();
+    Q_INVOKABLE bool isConnected();
+    Q_INVOKABLE void getOnlineParticipants();
+    Q_INVOKABLE void getOnlineUsers();
+    Q_INVOKABLE void getOnlineDevices();
+    Q_INVOKABLE void getSessionTypes();
 
-    }
-
-    virtual ~UserClient()
-    {
-        //TODO Close connection
-
-    }
-
-    Q_INVOKABLE void connect(const QUrl &url, const QString &username, const QString &password)
-    {
-        qDebug() << "Connecting to server" << url.toString();
-        m_comManager->loginToServer(username, password, url.toString());
-    }
-
-    Q_INVOKABLE void disconnect() {
-        qDebug() << "Disconnecting from server";
-        m_comManager->logout();
-    }
-
-    Q_INVOKABLE bool isConnected() {
-        return m_comManager->isConnected();
-    }
+    //Getters and Setters
+    void setUsername(const QString &username);
+    QString getUsername();
+    void setPassword(const QString &password);
+    QString getPassword();
+    void setServerUrl(const QUrl &url);
+    QUrl getServerUrl();
 
 signals:
+    // Special signals for login/logout
     void loginSucceeded();
     void loginFailed(const QString &errorMessage);
     void logoutSucceeded();
     void logoutFailed();
 
+    // Other API signals
+    void onlineParticipants(const QVariantList &results);
+    void onlineDevices(const QVariantList &results);
+    void onlineUsers(const QVariantList &results);
+    void sessionTypes(const QVariantList &results);
+
+    // Properties
+    void usernameChanged();
+    void passwordChanged();
+    void serverUrlChanged();
+
 
 protected:
 
     UserComManager *m_comManager;
-
 };
 
 
