@@ -132,6 +132,10 @@ void UserComManager::logout()
                 //Disconnect websocket
                 m_websocketManager->close();
 
+                //Reset token
+                m_token = "";
+                emit tokenRefreshed(m_token);
+
                 //Emit signal
                 emit logoutSucceeded();
 
@@ -202,6 +206,8 @@ void UserComManager::getOnlineParticipants()
                         QString participant_uuid = jsonObject["participant_uuid"].toString();
                         bool participant_online = jsonObject["participant_online"].toBool();
                         bool participant_busy = jsonObject["participant_busy"].toBool();
+
+                        QVariantMap variant = jsonObject.toVariantMap();
 
                         emit participantOnline(id_participant, id_participant_group, id_project,
                                                participant_email, participant_name, participant_token_enabled, participant_uuid, participant_online, participant_busy);

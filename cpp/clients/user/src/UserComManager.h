@@ -23,6 +23,32 @@ public:
 
     bool isConnected();
 
+    void setUsername(const QString& username) {
+        m_username = username;
+    }
+
+    QString getUsername() const {
+        return m_username;
+    }
+
+    void setPassword(const QString& password) {
+        m_password = password;
+    }
+
+    QString getPassword() const
+    {
+        return m_password;
+    }
+
+    void setServerUrl(const QString &url) {
+        m_serverUrl = QUrl(url);
+    }
+
+    QUrl getServerUrl() const {
+        return m_serverUrl;
+    }
+
+
 public slots:
 
     void loginToServer(QString username, QString password, QString server_name);
@@ -31,19 +57,6 @@ public slots:
     void getOnlineParticipants();
     void getOnlineDevices();
     void getSessionTypes();
-
-
-    void setUsername(const QString& username) {
-        m_username = username;
-    }
-
-    void setPassword(const QString& password) {
-        m_password = password;
-    }
-
-    void setServerUrl(const QString &url) {
-        m_serverUrl = QUrl(url);
-    }
 
 signals:
 

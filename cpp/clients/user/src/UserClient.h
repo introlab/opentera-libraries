@@ -12,6 +12,8 @@ class UserClient : public QObject
     QML_ELEMENT
     QML_SINGLETON
 
+    Q_PROPERTY(QString username READ getUsername WRITE setUsername NOTIFY usernameChanged)
+
 public:
 
     explicit UserClient(QObject *parent = nullptr)
@@ -28,8 +30,10 @@ public:
 
     virtual ~UserClient()
     {
-        //TODO Close connection
-
+        if (isConnected())
+        {
+            disconnect();
+        }
     }
 
     Q_INVOKABLE void connect(const QUrl &url, const QString &username, const QString &password)
@@ -47,11 +51,23 @@ public:
         return m_comManager->isConnected();
     }
 
+    void setUsername(const QString &username)
+    {
+        m_comManager->setUsername(username);
+    }
+
+    QString getUsername()
+    {
+        return m_comManager->getUsername();
+    }
+
 signals:
     void loginSucceeded();
     void loginFailed(const QString &errorMessage);
     void logoutSucceeded();
     void logoutFailed();
+    void usernameChanged();
+    void passwordChanged();
 
 
 protected:
