@@ -173,45 +173,8 @@ void UserComManager::getOnlineParticipants()
                 QJsonDocument jsonResponse = QJsonDocument::fromJson(responseData, &jsonParseError);
                 if (jsonParseError.error == QJsonParseError::NoError) {
 
-                    QJsonArray jsonArray = jsonResponse.array();
-                    //qDebug() << "onlineParticipants" << jsonArray;
-                    for (auto i = 0; i < jsonArray.size(); i++)
-                    {
-                        /*
-                         * SAMPLE
-                        [
-                            {
-                            "id_participant\": 2,
-                            "id_participant_group": null,
-                            "id_project": 1,
-                            "participant_email": null,
-                            "participant_enabled": true,
-                            "participant_name": "P2",
-                            "participant_token_enabled": true,
-                            "participant_uuid": "9dcec88e-a6e0-45fb-a9f5-eeaf747af538",
-                            "participant_online": true,
-                            "participant_busy": false
-                            }
-                        ]
-                        */
-
-                        QJsonValue jsonValue = jsonArray.at(i);
-                        auto jsonObject = jsonValue.toObject();
-                        int id_participant = jsonObject["id_participant"].toInt();
-                        int id_participant_group = jsonObject["id_participant_group"].toInt();
-                        int id_project = jsonObject["id_project"].toInt();
-                        QString participant_email = jsonObject["participant_email"].toString();
-                        QString participant_name = jsonObject["participant_name"].toString("Anonymous");
-                        bool participant_token_enabled = jsonObject["participant_token_enabled"].toBool();
-                        QString participant_uuid = jsonObject["participant_uuid"].toString();
-                        bool participant_online = jsonObject["participant_online"].toBool();
-                        bool participant_busy = jsonObject["participant_busy"].toBool();
-
-                        QVariantMap variant = jsonObject.toVariantMap();
-
-                        emit participantOnline(id_participant, id_participant_group, id_project,
-                                               participant_email, participant_name, participant_token_enabled, participant_uuid, participant_online, participant_busy);
-                    }
+                    qDebug() << "getOnlineParticipants " << jsonResponse.toVariant().toList();
+                    emit onlineParticipants(jsonResponse.toVariant().toList());
                 }
 
             });
@@ -236,7 +199,38 @@ void UserComManager::getOnlineDevices()
 
                 if (statusCode.toInt() != 200)
                 {
-                    qDebug() << "Cannot get online robots";
+                    qDebug() << "Cannot get online devices";
+                    return;
+                }
+
+                QJsonParseError jsonParseError;
+                QJsonDocument jsonResponse = QJsonDocument::fromJson(responseData, &jsonParseError);
+                if (jsonParseError.error == QJsonParseError::NoError) {
+                    qDebug() << "getOnlineDevices " << jsonResponse.toVariant().toList();
+                    emit onlineDevices(jsonResponse.toVariant().toList());
+                }
+
+    });
+}
+
+void UserComManager::getOnlineUsers()
+{
+    QUrl url(m_serverUrl);
+    url.setPath(WEB_ONLINEUSERINFO_PATH);
+
+    QUrlQuery args; // empty
+
+    QNetworkReply* reply = _doGet(url, args, true);
+
+    //Finished lambda
+    connect(reply, &QNetworkReply::finished, this, [reply, this]()
+            {
+                QByteArray responseData = reply->readAll();
+                QVariant statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+
+                if (statusCode.toInt() != 200)
+                {
+                    qDebug() << "Cannot get online users";
                     return;
                 }
 
@@ -244,49 +238,9 @@ void UserComManager::getOnlineDevices()
                 QJsonDocument jsonResponse = QJsonDocument::fromJson(responseData, &jsonParseError);
                 if (jsonParseError.error == QJsonParseError::NoError) {
 
-                    QJsonArray jsonArray = jsonResponse.array();
-                    qDebug() << "onlineDevices" << jsonArray;
-                    for (auto i = 0; i < jsonArray.size(); i++)
-                    {
-                        /*
-                         * SAMPLE
-                        [
-                            {
-                                "device_busy":false,
-                                "device_enabled":true,
-                                "device_name":"T-TOPv4-Blanc",
-                                "device_online":true,
-                                "device_status":{"busy":false,"online":true,"status":{"status":"CUSTOM JSON STRING BY DEVICE","timestamp":1694030867.759326}},
-                                "device_uuid":"0a0f0245-afe6-44b7-9f0d-cf93d072da41",
-                                "id_device":26,
-                                "id_device_subtype":null,
-                                "id_device_type":8
-                            }
-                        ]
-                        */
-
-                        QJsonValue jsonValue = jsonArray.at(i);
-                        auto jsonObject = jsonValue.toObject();
-
-                        bool device_busy = jsonObject["device_busy"].toBool();
-                        bool device_enable = jsonObject["device_enable"].toBool();
-                        QString device_name = jsonObject["device_name"].toString();
-                        bool device_online = jsonObject["device_online"].toBool();
-                        // Structure a little complicated
-                        auto jsonStatusObject = jsonObject["device_status"].toObject()["status"].toObject();
-                        qint64 timestamp = jsonStatusObject["timestamp"].toInteger();
-                        QString status_string = jsonStatusObject["status"].toString();
-                        QString device_uuid = jsonObject["device_uuid"].toString();
-                        int id_device = jsonObject["id_device"].toInt();
-                        int id_device_subtype = jsonObject["id_device_subtype"].toInt(-1);
-                        int id_device_type =  jsonObject["id_device_type"].toInt();
-
-                        emit deviceOnline(device_busy, device_enable, device_name, device_online,
-                                          timestamp, status_string, device_uuid, id_device, id_device_subtype, id_device_type);
-
-                    }
+                    qDebug() << "getOnlineUsers " << jsonResponse.toVariant().toList();
+                    emit onlineUsers(jsonResponse.toVariant().toList());
                 }
-
             });
 }
 
@@ -308,52 +262,15 @@ void UserComManager::getSessionTypes()
 
                 if (statusCode.toInt() != 200)
                 {
-                    qDebug() << "Cannot get online participants";
+                    qDebug() << "Cannot get session types";
                     return;
                 }
 
                 QJsonParseError jsonParseError;
                 QJsonDocument jsonResponse = QJsonDocument::fromJson(responseData, &jsonParseError);
                 if (jsonParseError.error == QJsonParseError::NoError) {
-
-                    QJsonArray jsonArray = jsonResponse.array();
-                    //qDebug() << "sessionTypes" << jsonArray;
-
-                    for (auto i = 0; i < jsonArray.size(); i++)
-                    {
-
-                        /*
-                         * SAMPLE
-                        [
-                            {
-                                "id_service": 5,
-                                "id_session_type": 5,
-                                "session_type_category": 1,
-                                "session_type_color": "#00FF00",
-                                "session_type_config": "json_config",
-                                "session_type_name": "TTOPGamesWithTablet",
-                                "session_type_online": true,
-                                "session_type_service_key": "TTOPGamesService",
-                                "session_type_service_uuid": "b6681df8-76bc-4aa4-9107-865bb0faadd5"
-                            }
-                        ]"
-                        */
-
-                        QJsonValue jsonValue = jsonArray.at(i);
-                        auto jsonObject = jsonValue.toObject();
-                        int id_service = jsonObject["id_service"].toInt();
-                        int id_session_type = jsonObject["id_session_type"].toInt();
-                        int session_type_category = jsonObject["session_type_category"].toInt();
-                        QString session_type_color = jsonObject["session_type_color"].toString();
-                        QString session_type_name = jsonObject["session_type_name"].toString();
-                        bool session_type_online = jsonObject["session_type_online"].toBool();
-                        QString session_type_service_key = jsonObject["session_type_service_key"].toString();
-                        QString session_type_service_uuid = jsonObject["session_type_service_uuid"].toString();
-
-                        emit sessionTypeAvailable(id_service, id_session_type, session_type_category, session_type_color,
-                                                  session_type_name, session_type_online, session_type_service_key, session_type_service_uuid);
-                    }
-
+                    qDebug() << "getSessionTypes " << jsonResponse.toVariant().toList();
+                    emit sessionTypes(jsonResponse.toVariant().toList());
                 }
 
             });
