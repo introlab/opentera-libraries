@@ -36,3 +36,4 @@ venv
 *.pyc
 /CMakeLists.txt.user
 /cpp/CMakeLists.txt.user
+opentera_libraries.egg-info
