@@ -1,6 +1,6 @@
 from device.DeviceComManager import DeviceComManager
 from user.UserComManager import UserComManager
-from user.UserAPI import ENDPOINT_USER_DEVICES
+from user.UserAPI import ENDPOINT_USER_DEVICES, ENDPOINT_USER_SERVER_SETTINGS
 from BaseTest import BaseTest
 import logging
 
@@ -11,19 +11,35 @@ class TestDeviceComManager(BaseTest):
         self.com_manager.set_logging_level(logging.DEBUG)
 
     def test_device_register(self):
-        response = self.com_manager.register_device('Test Device', 1)
+        user_com = UserComManager('127.0.0.1', 40075, allow_insecure=True)
+        self.assertEqual(200, user_com.login_with_username('admin', 'admin').status_code)
+        response = user_com.do_get(endpoint=ENDPOINT_USER_SERVER_SETTINGS, params={'device_register_key': True})
         self.assertEqual(200, response.status_code)
         response_json = response.json()
-        self.assertTrue('token' in response_json)
-        self.assertIsNotNone(response_json['token'])
+        server_key = response_json['device_register_key']
+
+        response = self.com_manager.register_device(server_key=server_key, device_name='Test Device',
+                                                    device_type_key='Test')
+        self.assertEqual(200, response.status_code)
+        response_json = response.json()
+        self.assertTrue('device_token' in response_json)
+        self.assertIsNotNone(response_json['device_token'])
         self.reset_test_db()
 
     def test_device_register_with_subtype(self):
-        response = self.com_manager.register_device('Test Device', 3, id_device_subtype=1)
+        user_com = UserComManager('127.0.0.1', 40075, allow_insecure=True)
+        self.assertEqual(200, user_com.login_with_username('admin', 'admin').status_code)
+        response = user_com.do_get(endpoint=ENDPOINT_USER_SERVER_SETTINGS, params={'device_register_key': True})
         self.assertEqual(200, response.status_code)
         response_json = response.json()
-        self.assertTrue('token' in response_json)
-        self.assertIsNotNone(response_json['token'])
+        server_key = response_json['device_register_key']
+
+        response = self.com_manager.register_device(server_key=server_key, device_name='Test Device',
+                                                    device_type_key='Test', device_subtype_name='Subtype #1')
+        self.assertEqual(200, response.status_code)
+        response_json = response.json()
+        self.assertTrue('device_token' in response_json)
+        self.assertIsNotNone(response_json['device_token'])
         self.reset_test_db()
 
     def test_device_login_with_token(self):
