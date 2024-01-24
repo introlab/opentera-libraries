@@ -1,8 +1,8 @@
 from requests import Response
 import logging
-import device.DeviceAPI
+import opentera_libraries.device.DeviceAPI as DeviceAPI
 
-from common.BaseComManager import BaseComManager
+from opentera_libraries.common.BaseComManager import BaseComManager
 
 
 class DeviceComManager(BaseComManager):
@@ -16,11 +16,11 @@ class DeviceComManager(BaseComManager):
         if device_subtype_name:
             params['subtype_name'] = device_type_key
 
-        return self.do_get(device.DeviceAPI.ENDPOINT_DEVICE_REGISTER, params)
+        return self.do_get(DeviceAPI.ENDPOINT_DEVICE_REGISTER, params)
 
     def login_with_token(self, token: str) -> Response | None:
         params = {'token': token}
-        response = self.do_get(device.DeviceAPI.ENDPOINT_DEVICE_LOGIN, params)
+        response = self.do_get(DeviceAPI.ENDPOINT_DEVICE_LOGIN, params)
         if response.status_code == 200:
             self.token = token
         else:

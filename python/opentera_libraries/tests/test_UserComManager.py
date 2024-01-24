@@ -1,4 +1,4 @@
-from user.UserComManager import UserComManager
+from opentera_libraries.user.UserComManager import UserComManager
 from BaseTest import BaseTest
 import logging
 

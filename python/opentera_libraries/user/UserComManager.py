@@ -1,9 +1,9 @@
 from requests import Response
 from requests.auth import _basic_auth_str
 import logging
-import user.UserAPI
+import opentera_libraries.user.UserAPI as UserAPI
 
-from common.BaseComManager import BaseComManager
+from opentera_libraries.common.BaseComManager import BaseComManager
 
 
 class UserComManager(BaseComManager):
@@ -17,7 +17,7 @@ class UserComManager(BaseComManager):
 
     def login_with_username(self, username: str, password: str) -> Response | None:
         headers = {'Authorization': _basic_auth_str(username, password)}
-        response = self.do_get(endpoint=user.UserAPI.ENDPOINT_USER_LOGIN, extra_headers=headers)
+        response = self.do_get(endpoint=UserAPI.ENDPOINT_USER_LOGIN, extra_headers=headers)
 
         if response.status_code == 200:
             # Save token for further use

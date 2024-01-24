@@ -1,6 +1,6 @@
-from device.DeviceComManager import DeviceComManager
-from user.UserComManager import UserComManager
-from user.UserAPI import ENDPOINT_USER_DEVICES, ENDPOINT_USER_SERVER_SETTINGS
+from opentera_libraries.device.DeviceComManager import DeviceComManager
+from opentera_libraries.user.UserComManager import UserComManager
+from opentera_libraries.user.UserAPI import ENDPOINT_USER_DEVICES, ENDPOINT_USER_SERVER_SETTINGS
 from BaseTest import BaseTest
 import logging
 
