@@ -73,7 +73,7 @@ class BaseComManager(ABC):
         headers = {
             'Accept-Language': self.language,
             'X-OS-Name': self.os_name,
-            'X-OS_Version': self.os_version,
+            'X-OS-Version': self.os_version,
             'X-Client-Name': self.client_name,
             'X-Client-Version': self.client_version
         }
