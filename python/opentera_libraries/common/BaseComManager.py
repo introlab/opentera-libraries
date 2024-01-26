@@ -51,8 +51,8 @@ class BaseComManager(ABC):
         else:
             return self._session.get(url=self.server_url + endpoint, params=params, verify=self.verify_ssl)
 
-    def do_post(self, endpoint: str, data: str, extra_headers: dict | None = None) -> Response:
-        logging.debug(msg='POST ' + endpoint + ', ' + json.dumps(data))
+    def do_post(self, endpoint: str, data: dict | str, extra_headers: dict | None = None) -> Response:
+        logging.debug(msg='POST ' + endpoint + ', ' + str(data))
         if extra_headers:
             headers = self._session.headers | extra_headers
             return self._session.post(url=self.server_url + endpoint, json=data, headers=headers, verify=self.verify_ssl)

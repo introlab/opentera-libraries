@@ -1,3 +1,10 @@
 
 ENDPOINT_DEVICE_REGISTER = '/api/device/register'
 ENDPOINT_DEVICE_LOGIN = '/api/device/login'
+ENDPOINT_DEVICE_LOGOUT = '/api/device/logout'
+ENDPOINT_DEVICE_SESSIONS = '/api/device/sessions'
+ENDPOINT_DEVICE_SESSION_EVENTS = '/api/device/sessions/events'
+ENDPOINT_DEVICE_DEVICES = '/api/device/devices'
+ENDPOINT_DEVICE_ASSETS = '/api/device/assets'
+ENDPOINT_DEVICE_PARTICIPANTS = '/api/device/participants'
+ENDPOINT_DEVICE_STATUS = '/api/device/status'
