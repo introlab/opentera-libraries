@@ -1,5 +1,9 @@
 from requests import Response
+from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
+
 import logging
+import os
+import json
 import opentera_libraries.device.DeviceAPI as DeviceAPI
 
 from opentera_libraries.common.BaseComManager import BaseComManager
@@ -31,3 +35,13 @@ class DeviceComManager(BaseComManager):
     def login_with_username(self, username: str, password: str) -> Response | None:
         logging.warning(msg='Device can\'t log with username - password')
         return None
+
+    def upload_file(self, id_session: int, asset_name: str, file_path: str, endpoint='/file/api/assets',
+                    callback_func=None) -> Response:
+
+        asset_infos = {'id_session': id_session, 'asset_name': asset_name}
+
+        response = self.do_post_file(endpoint=endpoint, file_infos=asset_infos, file_path=file_path,
+                                     callback_func=callback_func)
+
+        return response

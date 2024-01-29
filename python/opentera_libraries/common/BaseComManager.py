@@ -1,9 +1,12 @@
 from requests import Response, Session
+from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 from abc import ABC, abstractmethod
+
+import os
+import json
 import locale
 import logging
 import platform
-import json
 import urllib3
 
 
@@ -68,6 +71,29 @@ class BaseComManager(ABC):
         else:
             return self._session.delete(url=self.server_url + endpoint, params={'id': id_to_delete},
                                         verify=self.verify_ssl)
+
+    def do_post_file(self, endpoint: str, file_infos: dict, file_path: str, callback_func=None) -> Response:
+        logging.debug(msg='POST FILE ' + file_path + ' TO ' + endpoint)
+
+        file_length = os.stat(file_path)
+        fileobj = open(file_path, 'rb')
+        filename = os.path.basename(file_path)
+
+        encoder = MultipartEncoder(
+            fields={'file': (filename,
+                             fileobj, 'application/octet-stream', {'Content-Length': str(file_length.st_size)}),
+                    'file_asset': (None, json.dumps(file_infos), 'application/json')}
+        )
+
+        monitor = MultipartEncoderMonitor(encoder, callback_func)
+
+        extra_headers = {
+            'Content-Type': monitor.content_type
+        }
+
+        headers = self._session.headers | extra_headers
+        return self._session.post(url=self.server_url + endpoint, data=monitor, headers=headers,
+                                  verify=self.verify_ssl)
 
     def _set_session_headers(self):
         headers = {
