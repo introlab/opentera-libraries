@@ -1,4 +1,5 @@
 #include "UserClient.h"
+#include <QThread>
 
 UserClient::UserClient(QObject *parent)
     :   m_comManager(nullptr)
@@ -10,7 +11,7 @@ UserClient::UserClient(QObject *parent)
     QObject::connect(m_comManager, &UserComManager::logoutSucceeded, this, &UserClient::logoutSucceeded);
     QObject::connect(m_comManager, &UserComManager::logoutFailed, this, &UserClient::logoutFailed);
 
-    QObject::connect(m_comManager, &UserComManager::onlineParticipants, this, &UserClient::onlineParticipants);
+    QObject::connect(m_comManager, &UserComManager::onlineParticipants, this, &UserClient::protectedOnlineParticipants);
     QObject::connect(m_comManager, &UserComManager::onlineDevices, this, &UserClient::onlineDevices);
     QObject::connect(m_comManager, &UserComManager::onlineUsers, this, &UserClient::onlineUsers);
     QObject::connect(m_comManager, &UserComManager::sessionTypes, this, &UserClient::sessionTypes);
@@ -40,9 +41,18 @@ bool UserClient::isConnected() {
     return m_comManager->isConnected();
 }
 
-void UserClient::getOnlineParticipants()
+void UserClient::getOnlineParticipants(QObject *caller)
 {
-    m_comManager->getOnlineParticipants();
+    qDebug() << "getOnlineParticipants with caller " << caller;
+/*
+    QMetaObject::connectSlotsByName(this);
+
+    if (caller) {
+        QObject::connect(this, SIGNAL(onlineParticipantsAnswer(QVariantList)),
+                         caller, SLOT(onOnlineParticipantsAnswer(QVariantList)));
+    }
+*/
+    m_comManager->getOnlineParticipants(caller);
 }
 
 void UserClient::getOnlineUsers()
@@ -88,4 +98,29 @@ void UserClient::setServerUrl(const QUrl &url)
 QUrl UserClient::getServerUrl()
 {
     return m_comManager->getServerUrl();
+}
+
+void UserClient::protectedOnlineParticipants(QObject *caller, const QVariant &results)
+{
+    qDebug() << "C++ UserClient::protectedOnlineParticipants" << caller;
+
+    // Emit specific signal to caller
+    if (caller)
+    {
+        Qt::ConnectionType connectionType =
+            (QThread::currentThread() == caller->thread()) ? Qt::DirectConnection : Qt::QueuedConnection;
+
+
+        qDebug() << "UserClient::protectedOnlineParticipants calling specific" << caller;
+        QMetaObject::invokeMethod(caller,        // pointer to a QObject
+                                  "onOnlineParticipantsAnswer",       // member name (no parameters here)
+                                  connectionType,     // connection type
+                                  //Q_ARG(QObject*, caller),
+                                  Q_ARG(QVariant, results));     // parameters
+
+
+
+
+    }
+
 }

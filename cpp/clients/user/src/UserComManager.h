@@ -59,7 +59,7 @@ public slots:
     void loginToServer(QString username, QString password, QString server_name);
     void login();
     void logout();
-    void getOnlineParticipants();
+    void getOnlineParticipants(QObject* caller=nullptr);
     void getOnlineDevices();
     void getOnlineUsers();
     void getSessionTypes();
@@ -73,7 +73,7 @@ signals:
     void logoutFailed();
 
     // Results
-    void onlineParticipants(const QVariantList &results);
+    void onlineParticipants(QObject* caller, const QVariant &results);
     void onlineDevices(const QVariantList &results);
     void onlineUsers(const QVariantList &results);
     void sessionTypes(const QVariantList &results);

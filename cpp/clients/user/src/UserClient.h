@@ -24,7 +24,7 @@ public:
     Q_INVOKABLE void connect(const QUrl &url, const QString &username, const QString &password);
     Q_INVOKABLE void disconnect();
     Q_INVOKABLE bool isConnected();
-    Q_INVOKABLE void getOnlineParticipants();
+    Q_INVOKABLE void getOnlineParticipants(QObject *caller=nullptr);
     Q_INVOKABLE void getOnlineUsers();
     Q_INVOKABLE void getOnlineDevices();
     Q_INVOKABLE void getSessionTypes();
@@ -45,7 +45,7 @@ signals:
     void logoutFailed();
 
     // Other API signals
-    void onlineParticipants(const QVariantList &results);
+    void onlineParticipantsAnswer(const QVariant &results);
     void onlineDevices(const QVariantList &results);
     void onlineUsers(const QVariantList &results);
     void sessionTypes(const QVariantList &results);
@@ -55,6 +55,8 @@ signals:
     void passwordChanged();
     void serverUrlChanged();
 
+protected slots:
+    void protectedOnlineParticipants(QObject* caller, const QVariant &results);
 
 protected:
 

@@ -147,7 +147,7 @@ void UserComManager::logout()
 
 }
 
-void UserComManager::getOnlineParticipants()
+void UserComManager::getOnlineParticipants(QObject *caller)
 {
     QUrl url(m_serverUrl);
     url.setPath(WEB_ONLINEPARTICIPANTINFO_PATH);
@@ -157,7 +157,7 @@ void UserComManager::getOnlineParticipants()
     QNetworkReply* reply = _doGet(url, args, true);
 
     //Finished lambda
-    connect(reply, &QNetworkReply::finished, this, [reply, this]()
+    connect(reply, &QNetworkReply::finished, this, [reply, this, caller]()
             {
                 QByteArray responseData = reply->readAll();
                 //qDebug() << responseData;
@@ -174,7 +174,14 @@ void UserComManager::getOnlineParticipants()
                 if (jsonParseError.error == QJsonParseError::NoError) {
 
                     qDebug() << "getOnlineParticipants " << jsonResponse.toVariant().toList();
-                    emit onlineParticipants(jsonResponse.toVariant().toList());
+
+                    if (caller)
+                    {
+                        qDebug() << "getOnlineParticipants should call caller!" << caller;
+                        emit onlineParticipants(caller, jsonResponse.toVariant());
+                    }
+
+                    //emit onlineParticipants(jsonResponse.toVariant().toList());
                 }
 
             });
