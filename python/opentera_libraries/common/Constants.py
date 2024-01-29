@@ -1,0 +1,45 @@
+from enum import Enum
+
+
+class SessionStatus(Enum):
+    STATUS_NOTSTARTED = 0
+    STATUS_INPROGRESS = 1
+    STATUS_COMPLETED = 2
+    STATUS_CANCELLED = 3
+    STATUS_TERMINATED = 4
+
+
+class SessionEventTypes(Enum):
+    GENERAL_ERROR = 0
+    GENERAL_INFO = 1
+    GENERAL_WARNING = 2
+    SESSION_START = 3
+    SESSION_STOP = 4
+    DEVICE_ON_CHARGE = 5
+    DEVICE_OFF_CHARGE = 6
+    DEVICE_LOW_BATT = 7
+    DEVICE_STORAGE_LOW = 8
+    DEVICE_STORAGE_FULL = 9
+    DEVICE_EVENT = 10
+    USER_EVENT = 11
+    SESSION_JOIN = 12
+    SESSION_LEAVE = 13
+    SESSION_JOIN_REFUSED = 14
+    # Those events are generic and are usually service dependant.
+    CUSTOM_EVENT1 = 100
+    CUSTOM_EVENT2 = 101
+    CUSTOM_EVENT3 = 102
+    CUSTOM_EVENT4 = 103
+    CUSTOM_EVENT5 = 104
+    CUSTOM_EVENT6 = 105
+    CUSTOM_EVENT7 = 106
+    CUSTOM_EVENT8 = 107
+    CUSTOM_EVENT9 = 108
+    CUSTOM_EVENT10 = 109
+
+
+class SessionCategoryEnum(Enum):
+    SERVICE = 1
+    DATACOLLECT = 2
+    FILETRANSFER = 3
+    PROTOCOL = 4
