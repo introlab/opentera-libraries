@@ -7,12 +7,14 @@ set(opentera_libs_client_user_headers
     UserComManager.h
     UserWebSocketManager.h
     UserClient.h
+    QNetworkReplyWrapper.h
 )
 
 set(opentera_libs_client_user_srcs
     UserComManager.cpp
     UserWebSocketManager.cpp
     UserClient.cpp
+    QNetworkReplyWrapper.cpp
 )
 
 include_directories(

@@ -4,7 +4,9 @@
 #include "QtQmlIntegration/qqmlintegration.h"
 #include <QObject>
 #include "UserComManager.h"
+#include "QNetworkReplyWrapper.h"
 #include <QDebug>
+
 
 class UserClient : public QObject
 {
@@ -25,6 +27,13 @@ public:
     Q_INVOKABLE void disconnect();
     Q_INVOKABLE bool isConnected();
     Q_INVOKABLE void getOnlineParticipants(QObject *caller=nullptr);
+
+    //DL->SB ici notre nouvelle interface en test.
+    Q_INVOKABLE QNetworkReplyWrapper* get(const QString &endpoint, const QVariantMap &params = QVariantMap(), const QVariantMap &extra_headers = QVariantMap());
+
+
+    //Q_INVOKABLE QNetworkReplyWrapper* get(QString endpoint, QVariantMap params, QVariantMap json, extra headers);
+    //Q_INVOKABLE void getOnlineParticipants(std::function<void(const QVariant&)>& callback);
     Q_INVOKABLE void getOnlineUsers();
     Q_INVOKABLE void getOnlineDevices();
     Q_INVOKABLE void getSessionTypes();

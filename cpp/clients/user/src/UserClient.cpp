@@ -40,20 +40,25 @@ void UserClient::disconnect() {
 bool UserClient::isConnected() {
     return m_comManager->isConnected();
 }
+/*
+void UserClient::getOnlineParticipants(std::function<void (const QVariant &)> &callback)
+{
+
+}
+*/
 
 void UserClient::getOnlineParticipants(QObject *caller)
 {
     qDebug() << "getOnlineParticipants with caller " << caller;
-/*
-    QMetaObject::connectSlotsByName(this);
-
-    if (caller) {
-        QObject::connect(this, SIGNAL(onlineParticipantsAnswer(QVariantList)),
-                         caller, SLOT(onOnlineParticipantsAnswer(QVariantList)));
-    }
-*/
     m_comManager->getOnlineParticipants(caller);
 }
+
+QNetworkReplyWrapper *UserClient::get(const QString &endpoint, const QVariantMap &params, const QVariantMap &extra_headers)
+{
+    QNetworkReply *reply = m_comManager->get(endpoint, params, extra_headers);
+    return new QNetworkReplyWrapper(reply);
+}
+
 
 void UserClient::getOnlineUsers()
 {
@@ -102,7 +107,10 @@ QUrl UserClient::getServerUrl()
 
 void UserClient::protectedOnlineParticipants(QObject *caller, const QVariant &results)
 {
+
     qDebug() << "C++ UserClient::protectedOnlineParticipants" << caller;
+
+    QObject *signal_sender = sender();
 
     // Emit specific signal to caller
     if (caller)

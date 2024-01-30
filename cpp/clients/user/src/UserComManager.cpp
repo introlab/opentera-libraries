@@ -37,6 +37,35 @@ bool UserComManager::isConnected()
     return false;
 }
 
+QNetworkReply* UserComManager::get(const QString &endpoint, const QVariantMap &params, const QVariantMap &extra_headers)
+{
+    QUrl url(m_serverUrl);
+    url.setPath(endpoint);
+
+    // Fill query params
+    QUrlQuery query_params;
+    for (auto it = params.begin(); it != params.end(); ++it)
+    {
+        query_params.addQueryItem(it.key(), it.value().toString());
+    }
+
+    url.setQuery(query_params);
+    QNetworkRequest request(url);
+
+    // Add extra headers
+    for (auto it = extra_headers.begin(); it != extra_headers.end(); ++it) {
+        //qDebug() << "Key:" << it.key() << "Value:" << it.value();
+        request.setRawHeader(it.key().toUtf8(), it.value().toByteArray());
+    }
+
+    // Set additional headers
+    _setRequestCredentials(request, true); //Always with token
+    _setRequestLanguage(request);
+    _setRequestVersions(request);
+
+    return m_networkAccessManager->get(request);
+}
+
 void UserComManager::loginToServer(QString username, QString password, QString server_name)
 {
     m_username = username;
@@ -184,8 +213,10 @@ void UserComManager::getOnlineParticipants(QObject *caller)
                     //emit onlineParticipants(jsonResponse.toVariant().toList());
                 }
 
+                //reply->deleteLater();
             });
 
+    //return reply;
 }
 
 void UserComManager::getOnlineDevices()
@@ -217,7 +248,7 @@ void UserComManager::getOnlineDevices()
                     emit onlineDevices(jsonResponse.toVariant().toList());
                 }
 
-    });
+            });
 }
 
 void UserComManager::getOnlineUsers()

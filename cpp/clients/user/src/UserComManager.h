@@ -54,6 +54,8 @@ public:
     }
 
 
+    QNetworkReply* get(const QString &endpoint, const QVariantMap &params = QVariantMap(), const QVariantMap &extra_headers = QVariantMap());
+
 public slots:
 
     void loginToServer(QString username, QString password, QString server_name);
