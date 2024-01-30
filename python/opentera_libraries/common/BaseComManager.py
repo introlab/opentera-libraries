@@ -76,24 +76,25 @@ class BaseComManager(ABC):
         logging.debug(msg='POST FILE ' + file_path + ' TO ' + endpoint)
 
         file_length = os.stat(file_path)
-        fileobj = open(file_path, 'rb')
-        filename = os.path.basename(file_path)
+        with open(file_path, 'rb') as fileobj:
+            filename = os.path.basename(file_path)
 
-        encoder = MultipartEncoder(
-            fields={'file': (filename,
-                             fileobj, 'application/octet-stream', {'Content-Length': str(file_length.st_size)}),
-                    'file_asset': (None, json.dumps(file_infos), 'application/json')}
-        )
+            encoder = MultipartEncoder(
+                fields={'file': (filename,
+                                 fileobj, 'application/octet-stream', {'Content-Length': str(file_length.st_size)}),
+                        'file_asset': (None, json.dumps(file_infos), 'application/json')}
+            )
 
-        monitor = MultipartEncoderMonitor(encoder, callback_func)
+            monitor = MultipartEncoderMonitor(encoder, callback_func)
 
-        extra_headers = {
-            'Content-Type': monitor.content_type
-        }
+            extra_headers = {
+                'Content-Type': monitor.content_type
+            }
 
-        headers = self._session.headers | extra_headers
-        return self._session.post(url=self.server_url + endpoint, data=monitor, headers=headers,
-                                  verify=self.verify_ssl)
+            headers = self._session.headers | extra_headers
+            response = self._session.post(url=self.server_url + endpoint, data=monitor, headers=headers,
+                                          verify=self.verify_ssl)
+        return response
 
     def _set_session_headers(self):
         headers = {
