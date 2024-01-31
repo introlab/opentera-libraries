@@ -7,14 +7,17 @@
 #include <QJsonValue>
 #include "UserWebAPI.h"
 
-UserComManager::UserComManager(QObject *parent)
+UserComManager::UserComManager(bool verify_ssl, QObject *parent)
     : QObject{parent},
     m_networkAccessManager(nullptr),
     m_websocketManager(nullptr),
-    m_refreshTokenTimer(nullptr)
+    m_refreshTokenTimer(nullptr),
+    m_verifySsl{verify_ssl},
+    m_clientName("UserComManager"),
+    m_clientVersion("1.0.0")
 {
     m_networkAccessManager = new QNetworkAccessManager(this);
-    m_websocketManager = new UserWebSocketManager(this);
+    m_websocketManager = new UserWebSocketManager(m_verifySsl, this);
     m_refreshTokenTimer = new QTimer(this);
 
     // Connect base signals
@@ -49,21 +52,39 @@ QNetworkReply* UserComManager::get(const QString &endpoint, const QVariantMap &p
         query_params.addQueryItem(it.key(), it.value().toString());
     }
 
-    url.setQuery(query_params);
-    QNetworkRequest request(url);
-
-    // Add extra headers
+    // Convert extra_headers to QMap<QString, QString>
+    QMap<QString, QString> extra_headers_map;
     for (auto it = extra_headers.begin(); it != extra_headers.end(); ++it) {
-        //qDebug() << "Key:" << it.key() << "Value:" << it.value();
-        request.setRawHeader(it.key().toUtf8(), it.value().toByteArray());
+        extra_headers_map.insert(it.key(), it.value().toString());
     }
 
-    // Set additional headers
-    _setRequestCredentials(request, true); //Always with token
-    _setRequestLanguage(request);
-    _setRequestVersions(request);
 
-    return m_networkAccessManager->get(request);
+    return _doGet(url, query_params, extra_headers_map, true);
+}
+
+QNetworkReply *UserComManager::post(const QString &endpoint, const QVariantMap &params, const QVariantMap &data, const QVariantMap &extra_headers)
+{
+    QUrl url(m_serverUrl);
+    url.setPath(endpoint);
+
+    // Fill query params
+    QUrlQuery query_params;
+    for (auto it = params.begin(); it != params.end(); ++it)
+    {
+        query_params.addQueryItem(it.key(), it.value().toString());
+    }
+
+    // Convert extra_headers to QMap<QString, QString>
+    QMap<QString, QString> extra_headers_map;
+    for (auto it = extra_headers.begin(); it != extra_headers.end(); ++it) {
+        extra_headers_map.insert(it.key(), it.value().toString());
+    }
+
+    // Converting QVariantMap to QIODevice
+    QJsonDocument jsonDocument = QJsonDocument::fromVariant(data);
+
+    //Post
+    return _doPost(url, query_params, jsonDocument.toJson(), extra_headers_map, true);
 }
 
 void UserComManager::loginToServer(QString username, QString password, QString server_name)
@@ -82,7 +103,7 @@ void UserComManager::login()
 
     QUrlQuery args;
     args.addQueryItem("with_websockets", "true");
-    QNetworkReply* reply = _doGet(url, args, false);
+    QNetworkReply* reply = _doGet(url, args, QMap<QString, QString>(), false);
 
     //Finished lambda
     connect(reply, &QNetworkReply::finished, this, [reply, this]()
@@ -139,7 +160,7 @@ void UserComManager::logout()
 
     QUrlQuery args; // empty
 
-    QNetworkReply* reply = _doGet(url, args, true);
+    QNetworkReply* reply = _doGet(url, args, QMap<QString, QString>(), true);
 
     //Finished lambda
     connect(reply, &QNetworkReply::finished, this, [reply, this]()
@@ -172,12 +193,23 @@ void UserComManager::logout()
                 reply->deleteLater();
 
             });
-
-
 }
 
+void UserComManager::setToken(const QString &token)
+{
+    m_token = token;
+    emit tokenRefreshed(m_token);
+}
 
+void UserComManager::setClientName(const QString &client_name)
+{
+    m_clientName = client_name;
+}
 
+void UserComManager::setClientVersion(const QString &client_version)
+{
+    m_clientVersion = client_version;
+}
 
 void UserComManager::onNetworkAuthenticationRequired(QNetworkReply *reply, QAuthenticator *authenticator)
 {
@@ -188,10 +220,9 @@ void UserComManager::onNetworkAuthenticationRequired(QNetworkReply *reply, QAuth
     authenticator->setPassword(m_password);
 }
 
-
-
 void UserComManager::onNetworkFinished(QNetworkReply *reply)
 {
+    Q_UNUSED(reply)
     //qDebug() << "onNetworkFinished";
 }
 
@@ -199,19 +230,23 @@ void UserComManager::onNetworkFinished(QNetworkReply *reply)
 
 void UserComManager::onNetworkEncrypted(QNetworkReply *reply)
 {
-    Q_UNUSED(reply);
+    Q_UNUSED(reply)
     qDebug() << "Network Encrypted";
 }
 
 
 void UserComManager::onNetworkSslErrors(QNetworkReply *reply, const QList<QSslError> &errors)
 {
-    qDebug() << "onNetworkSslErrors - Ignore SSL errors (certificate)";
-    reply->ignoreSslErrors();
-    for(const QSslError &error : errors){
-        qDebug() << error;
+    if (!m_verifySsl)
+    {
+        qDebug() << "onNetworkSslErrors - Ignore SSL errors (certificate)";
+        reply->ignoreSslErrors();
+        return;
     }
-
+    else
+    {
+        qDebug() << "onNetworkSslErrors - Verify SSL errors (certificate)" << errors;
+    }
 }
 #endif
 
@@ -224,7 +259,8 @@ void UserComManager::onRefreshTokenTimeout()
     }
 }
 
-QNetworkReply* UserComManager::_doPost(const QUrl &url, const QUrlQuery &query_args, const QString &post_data, bool use_token)
+QNetworkReply* UserComManager::_doPost(const QUrl &url, const QUrlQuery &query_args,
+                                       const QByteArray &post_data, const QMap<QString, QString> &extra_headers, bool use_token)
 {
     QUrl query = url;
     if (!query_args.isEmpty())
@@ -234,15 +270,17 @@ QNetworkReply* UserComManager::_doPost(const QUrl &url, const QUrlQuery &query_a
 
     QNetworkRequest request(query);
     _setRequestCredentials(request, use_token);
+    _setRequestExtraHeaders(request, extra_headers);
     _setRequestLanguage(request);
     _setRequestVersions(request);
 
     request.setRawHeader("Content-Type", "application/json");
 
-    return m_networkAccessManager->post(request, post_data.toUtf8());
+    return m_networkAccessManager->post(request, post_data);
 }
 
-QNetworkReply* UserComManager::_doGet(const QUrl &url, const QUrlQuery &query_args, bool use_token)
+QNetworkReply* UserComManager::_doGet(const QUrl &url, const QUrlQuery &query_args,
+                                      const QMap<QString, QString> &extra_headers, bool use_token)
 {
 
     QUrl query = url;
@@ -252,6 +290,7 @@ QNetworkReply* UserComManager::_doGet(const QUrl &url, const QUrlQuery &query_ar
     }
 
     QNetworkRequest request(query);
+    _setRequestExtraHeaders(request, extra_headers);
     _setRequestCredentials(request, use_token);
     _setRequestLanguage(request);
     _setRequestVersions(request);
@@ -291,11 +330,20 @@ void UserComManager::_setRequestCredentials(QNetworkRequest &request, const bool
 
 void UserComManager::_setRequestVersions(QNetworkRequest &request)
 {
-    //TODO set OS NAME and VERSION
-    //request.setRawHeader("X-Client-Name", QByteArray("UserComManager"));
-    //request.setRawHeader("X-Client-Version", QByteArray("1.0"));
-    //request.setRawHeader("X-OS-Name", QString("Unknown").toUtf8());
-    //request.setRawHeader("X-OS-Version", QString("Unknown").toUtf8());
+    request.setRawHeader("X-Client-Name", m_clientName.toUtf8());
+    request.setRawHeader("X-Client-Version", m_clientName.toUtf8());
+    request.setRawHeader("X-OS-Name", QString("Unknown").toUtf8());
+    request.setRawHeader("X-OS-Version", QString("Unknown").toUtf8());
+}
+
+void UserComManager::_setRequestExtraHeaders(QNetworkRequest &request, QMap<QString, QString> extra_headers)
+{
+    //Iterate over extra headers
+    QMapIterator<QString, QString> i(extra_headers);
+    while (i.hasNext()) {
+        i.next();
+        request.setRawHeader(i.key().toUtf8(), i.value().toUtf8());
+    }
 }
 
 void UserComManager::_startRefreshTokenTimer()
@@ -321,7 +369,7 @@ void UserComManager::_refreshToken()
     QUrl url(m_serverUrl);
     url.setPath(WEB_REFRESH_TOKEN_PATH);
     QUrlQuery args;
-    QNetworkReply* reply = _doGet(url, args, true);
+    QNetworkReply* reply = _doGet(url, args, QMap<QString, QString>(), true);
 
     //Finished lambda
     connect(reply, &QNetworkReply::finished, this, [reply, this]()

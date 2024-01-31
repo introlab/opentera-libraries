@@ -10,7 +10,6 @@
 #include <QHttpMultiPart>
 #include <QHttpPart>
 #include <QTimer>
-
 #include "UserWebSocketManager.h"
 
 
@@ -19,7 +18,7 @@ class UserComManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit UserComManager(QObject *parent = nullptr);
+    explicit UserComManager(bool verify_ssl=true, QObject *parent = nullptr);
 
     bool isConnected();
 
@@ -53,14 +52,32 @@ public:
         return m_serverUrl;
     }
 
+    QString getToken() const {
+        return m_token;
+    }
 
+    QString getClientName() const {
+        return m_clientName;
+    }
+
+    QString getClientVersion() const {
+        return m_clientVersion;
+    }
+
+    //Get
     QNetworkReply* get(const QString &endpoint, const QVariantMap &params = QVariantMap(), const QVariantMap &extra_headers = QVariantMap());
+
+    //Post
+    QNetworkReply* post(const QString &endpoint, const QVariantMap &params = QVariantMap(), const QVariantMap &data = QVariantMap(), const QVariantMap &extra_headers = QVariantMap());
 
 public slots:
 
     void loginToServer(QString username, QString password, QString server_name);
     void login();
     void logout();
+    void setToken(const QString &token);
+    void setClientName(const QString &client_name);
+    void setClientVersion(const QString &client_version);
 
 
 signals:
@@ -95,12 +112,25 @@ private:
     QString m_token;
     QUrl m_serverUrl;
     QTimer *m_refreshTokenTimer;
+    bool m_verifySsl;
+    QString m_clientName;
+    QString m_clientVersion;
 
-    QNetworkReply* _doPost(const QUrl &url, const QUrlQuery &query_args = QUrlQuery(), const QString &data = QString(), bool use_token = true);
-    QNetworkReply* _doGet(const QUrl &url, const QUrlQuery &query_args = QUrlQuery(), bool use_token = true);
+    QNetworkReply* _doPost(const QUrl &url,
+                           const QUrlQuery &query_args = QUrlQuery(),
+                           const QByteArray &data = QByteArray(),
+                           const QMap<QString,QString> & extra_headers = QMap<QString, QString>(),
+                           bool use_token = true);
+
+    QNetworkReply* _doGet(const QUrl &url,
+                          const QUrlQuery &query_args = QUrlQuery(),
+                          const QMap<QString,QString> & extra_headers = QMap<QString, QString>(),
+                          bool use_token = true);
+
     void _setRequestLanguage(QNetworkRequest &request);
     void _setRequestCredentials(QNetworkRequest &request, const bool &use_token);
     void _setRequestVersions(QNetworkRequest &request);
+    void _setRequestExtraHeaders(QNetworkRequest &request, QMap<QString,QString> extra_headers);
     void _connectWebSocket(const QUrl &url);
     void _startRefreshTokenTimer();
     void _stopRefreshTokenTimer();

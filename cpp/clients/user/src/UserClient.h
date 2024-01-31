@@ -6,6 +6,7 @@
 #include "UserComManager.h"
 #include "QNetworkReplyWrapper.h"
 #include <QDebug>
+#include "UserWebAPI.h"
 
 
 class UserClient : public QObject
@@ -17,6 +18,12 @@ class UserClient : public QObject
     Q_PROPERTY(QString username READ getUsername WRITE setUsername NOTIFY usernameChanged)
     Q_PROPERTY(QString password READ getPassword WRITE setPassword NOTIFY passwordChanged)
     Q_PROPERTY(QUrl url READ getServerUrl WRITE setServerUrl NOTIFY serverUrlChanged)
+    Q_PROPERTY(QString token READ getToken WRITE setToken NOTIFY tokenChanged)
+    Q_PROPERTY(QString clientName READ getClientName WRITE setClientName NOTIFY clientNameChanged)
+    Q_PROPERTY(QString clientVersion READ getClientVersion WRITE setClientVersion NOTIFY clientVersionChanged)
+
+    Q_PROPERTY(QString USER_WEB_LOGIN_PATH READ getUSER_WEB_LOGIN_PATH CONSTANT)
+    QString getUSER_WEB_LOGIN_PATH() { return QString(WEB_LOGIN_PATH); }
 
 public:
 
@@ -29,15 +36,28 @@ public:
 
 
     Q_INVOKABLE QNetworkReplyWrapper* get(const QString &endpoint, const QVariantMap &params = QVariantMap(), const QVariantMap &extra_headers = QVariantMap());
+    Q_INVOKABLE QNetworkReplyWrapper* post(const QString &endpoint, const QVariantMap &params = QVariantMap(), const QVariantMap &data = QVariantMap(),
+                                           const QVariantMap &extra_headers = QVariantMap());
 
 
     //Getters and Setters
     void setUsername(const QString &username);
     QString getUsername();
+
     void setPassword(const QString &password);
     QString getPassword();
+
     void setServerUrl(const QUrl &url);
     QUrl getServerUrl();
+
+    void setToken(const QString &token);
+    QString getToken();
+
+    void setClientName(const QString &clientName);
+    QString getClientName();
+
+    void setClientVersion(const QString &clientVersion);
+    QString getClientVersion();
 
 signals:
     // Special signals for login/logout
@@ -50,6 +70,9 @@ signals:
     void usernameChanged();
     void passwordChanged();
     void serverUrlChanged();
+    void tokenChanged();
+    void clientNameChanged();
+    void clientVersionChanged();
 
 protected:
 

@@ -12,7 +12,7 @@ class UserWebSocketManager : public QObject
     QWebSocket *m_websocket;
 
 public:
-    explicit UserWebSocketManager(QObject*parent = nullptr);
+    explicit UserWebSocketManager(bool verify_ssl=true, QObject*parent = nullptr);
 
     void connectTo(const QUrl &url);
     void close();
@@ -29,6 +29,9 @@ private slots:
 #endif
     void onConnected();
     void onDisconnected();
+
+private:
+    bool m_verifySsl;
 
 };
 #endif // USERWEBSOCKETMANAGER_H

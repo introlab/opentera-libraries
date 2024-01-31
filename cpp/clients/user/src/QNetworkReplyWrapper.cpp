@@ -8,6 +8,12 @@
 #include <QJsonValue>
 
 
+QNetworkReplyWrapper::QNetworkReplyWrapper(QObject *parent)
+    :   QObject(parent)
+{
+
+}
+
 QNetworkReplyWrapper::QNetworkReplyWrapper(QNetworkReply *reply, QObject *parent)
     :   QObject(parent), m_replyPtr(reply)
 {

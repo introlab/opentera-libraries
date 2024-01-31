@@ -6,12 +6,14 @@
 #include <QNetworkReply>
 #include <QSharedPointer>
 
+
 class QNetworkReplyWrapper : public QObject
 {
     Q_OBJECT
     QML_ELEMENT
 
 public:
+    QNetworkReplyWrapper(QObject *parent=nullptr);
     explicit QNetworkReplyWrapper(QNetworkReply *reply, QObject *parent=nullptr);
 
     virtual ~QNetworkReplyWrapper() override;

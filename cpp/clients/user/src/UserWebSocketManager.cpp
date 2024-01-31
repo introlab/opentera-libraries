@@ -1,8 +1,8 @@
 #include "UserWebSocketManager.h"
 #include <QDebug>
 
-UserWebSocketManager::UserWebSocketManager(QObject *parent)
-    : QObject(parent), m_websocket(nullptr)
+UserWebSocketManager::UserWebSocketManager(bool verify_ssl, QObject *parent)
+    : QObject(parent), m_websocket(nullptr), m_verifySsl(verify_ssl)
 {
     m_websocket = new QWebSocket(QString(), QWebSocketProtocol::VersionLatest,parent);
     connect(m_websocket, &QWebSocket::binaryMessageReceived, this, &UserWebSocketManager::onBinaryMessageReceived);
@@ -52,7 +52,14 @@ void UserWebSocketManager::onSslErrors(const QList<QSslError> &errors)
 {
     if(m_websocket)
     {
-        m_websocket->ignoreSslErrors();
+        if (!m_verifySsl)
+        {
+            m_websocket->ignoreSslErrors();
+        }
+        else {
+            qDebug() << "UserWebSocketManager::onSslErrors" << errors;
+        }
+
     }
 }
 #endif

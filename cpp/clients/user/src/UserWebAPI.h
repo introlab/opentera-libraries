@@ -1,8 +1,6 @@
 #ifndef USER_WEBAPI_H
 #define USER_WEBAPI_H
 
-#define APPLICATION_TAG                     "OpenTeraPlus"
-
 // TERASERVER URL Definitions
 #define WEB_LOGIN_PATH                      "/api/user/login"
 #define WEB_LOGOUT_PATH                     "/api/user/logout"
