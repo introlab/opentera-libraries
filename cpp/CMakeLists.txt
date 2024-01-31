@@ -12,8 +12,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_definitions(-DOPENTERA_CLIENT_NAME="${CMAKE_PROJECT_NAME}")
 add_definitions(-DOPENTERA_CLIENT_VERSION="1.0")
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core LinguistTools)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core LinguistTools)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core LinguistTools QML)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core LinguistTools QML)
 
 set(TS_FILES opentera-libraries_en_CA.ts)
 
@@ -21,6 +21,15 @@ add_executable(opentera-libraries
   main.cpp
   ${TS_FILES}
 )
+
+qt_add_library(opentera_libs_qml STATIC)
+qt_add_qml_module(opentera_libs_qml
+    URI "OpenTeraLibs"
+    VERSION 1.0
+    SOURCES ${opentera_libs_client_user_headers} ${opentera_libs_client_user_srcs}
+            ${opentera_libs_client_device_headers} ${opentera_libs_client_device_srcs}
+)
+
 target_link_libraries(opentera-libraries Qt${QT_VERSION_MAJOR}::Core)
 
 if(COMMAND qt_create_translation)
