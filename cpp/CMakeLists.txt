@@ -22,6 +22,7 @@ add_executable(opentera-libraries
   ${TS_FILES}
 )
 
+set(QT_QML_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/qml)
 qt_add_library(opentera_libs_qml STATIC)
 qt_add_qml_module(opentera_libs_qml
     URI "OpenTeraLibs"
