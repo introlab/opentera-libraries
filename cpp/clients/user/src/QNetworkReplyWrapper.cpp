@@ -40,6 +40,6 @@ void QNetworkReplyWrapper::onRequestfinished()
     QJsonDocument jsonResponse = QJsonDocument::fromJson(responseData, &jsonParseError);
     if (jsonParseError.error == QJsonParseError::NoError) {
         qDebug() << "QNetworkReplyWrapper emit requestSucceeded" << jsonResponse << statusCode.toInt();
-        emit requestSucceeded(jsonResponse.toVariant());
+        emit requestSucceeded(jsonResponse.toVariant(), statusCode.toInt());
     }
 }

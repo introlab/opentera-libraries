@@ -11,11 +11,6 @@ UserClient::UserClient(QObject *parent)
     QObject::connect(m_comManager, &UserComManager::logoutSucceeded, this, &UserClient::logoutSucceeded);
     QObject::connect(m_comManager, &UserComManager::logoutFailed, this, &UserClient::logoutFailed);
 
-    QObject::connect(m_comManager, &UserComManager::onlineParticipants, this, &UserClient::protectedOnlineParticipants);
-    QObject::connect(m_comManager, &UserComManager::onlineDevices, this, &UserClient::onlineDevices);
-    QObject::connect(m_comManager, &UserComManager::onlineUsers, this, &UserClient::onlineUsers);
-    QObject::connect(m_comManager, &UserComManager::sessionTypes, this, &UserClient::sessionTypes);
-
 }
 
 UserClient::~UserClient()
@@ -39,40 +34,6 @@ void UserClient::disconnect() {
 
 bool UserClient::isConnected() {
     return m_comManager->isConnected();
-}
-/*
-void UserClient::getOnlineParticipants(std::function<void (const QVariant &)> &callback)
-{
-
-}
-*/
-
-void UserClient::getOnlineParticipants(QObject *caller)
-{
-    qDebug() << "getOnlineParticipants with caller " << caller;
-    m_comManager->getOnlineParticipants(caller);
-}
-
-QNetworkReplyWrapper *UserClient::get(const QString &endpoint, const QVariantMap &params, const QVariantMap &extra_headers)
-{
-    QNetworkReply *reply = m_comManager->get(endpoint, params, extra_headers);
-    return new QNetworkReplyWrapper(reply);
-}
-
-
-void UserClient::getOnlineUsers()
-{
-    m_comManager->getOnlineUsers();
-}
-
-void UserClient::getOnlineDevices()
-{
-    m_comManager->getOnlineDevices();
-}
-
-void UserClient::getSessionTypes()
-{
-    m_comManager->getSessionTypes();
 }
 
 void UserClient::setUsername(const QString &username)
@@ -105,30 +66,8 @@ QUrl UserClient::getServerUrl()
     return m_comManager->getServerUrl();
 }
 
-void UserClient::protectedOnlineParticipants(QObject *caller, const QVariant &results)
+QNetworkReplyWrapper* UserClient::get(const QString &endpoint, const QVariantMap &params, const QVariantMap &extra_headers)
 {
-
-    qDebug() << "C++ UserClient::protectedOnlineParticipants" << caller;
-
-    QObject *signal_sender = sender();
-
-    // Emit specific signal to caller
-    if (caller)
-    {
-        Qt::ConnectionType connectionType =
-            (QThread::currentThread() == caller->thread()) ? Qt::DirectConnection : Qt::QueuedConnection;
-
-
-        qDebug() << "UserClient::protectedOnlineParticipants calling specific" << caller;
-        QMetaObject::invokeMethod(caller,        // pointer to a QObject
-                                  "onOnlineParticipantsAnswer",       // member name (no parameters here)
-                                  connectionType,     // connection type
-                                  //Q_ARG(QObject*, caller),
-                                  Q_ARG(QVariant, results));     // parameters
-
-
-
-
-    }
-
+    QNetworkReply *reply = m_comManager->get(endpoint, params, extra_headers);
+    return new QNetworkReplyWrapper(reply);
 }

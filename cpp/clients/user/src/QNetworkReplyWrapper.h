@@ -14,10 +14,10 @@ class QNetworkReplyWrapper : public QObject
 public:
     explicit QNetworkReplyWrapper(QNetworkReply *reply, QObject *parent=nullptr);
 
-    virtual ~QNetworkReplyWrapper();
+    virtual ~QNetworkReplyWrapper() override;
 
 signals:
-    void requestSucceeded(const QVariant &response);
+    void requestSucceeded(const QVariant &response, int status_code);
     void requestFailed(const QVariant &response, int status_code);
 
 protected slots:

@@ -21,22 +21,15 @@ class UserClient : public QObject
 public:
 
     explicit UserClient(QObject *parent = nullptr);
-    virtual ~UserClient();
+    virtual ~UserClient() override;
 
     Q_INVOKABLE void connect(const QUrl &url, const QString &username, const QString &password);
     Q_INVOKABLE void disconnect();
     Q_INVOKABLE bool isConnected();
-    Q_INVOKABLE void getOnlineParticipants(QObject *caller=nullptr);
 
-    //DL->SB ici notre nouvelle interface en test.
+
     Q_INVOKABLE QNetworkReplyWrapper* get(const QString &endpoint, const QVariantMap &params = QVariantMap(), const QVariantMap &extra_headers = QVariantMap());
 
-
-    //Q_INVOKABLE QNetworkReplyWrapper* get(QString endpoint, QVariantMap params, QVariantMap json, extra headers);
-    //Q_INVOKABLE void getOnlineParticipants(std::function<void(const QVariant&)>& callback);
-    Q_INVOKABLE void getOnlineUsers();
-    Q_INVOKABLE void getOnlineDevices();
-    Q_INVOKABLE void getSessionTypes();
 
     //Getters and Setters
     void setUsername(const QString &username);
@@ -53,19 +46,10 @@ signals:
     void logoutSucceeded();
     void logoutFailed();
 
-    // Other API signals
-    void onlineParticipantsAnswer(const QVariant &results);
-    void onlineDevices(const QVariantList &results);
-    void onlineUsers(const QVariantList &results);
-    void sessionTypes(const QVariantList &results);
-
     // Properties
     void usernameChanged();
     void passwordChanged();
     void serverUrlChanged();
-
-protected slots:
-    void protectedOnlineParticipants(QObject* caller, const QVariant &results);
 
 protected:
 
