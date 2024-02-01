@@ -6,6 +6,8 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
+qt_policy(SET QTP0001 NEW)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -17,21 +19,12 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core LinguistTools QML)
 
 set(TS_FILES opentera-libraries_en_CA.ts)
 
-add_executable(opentera-libraries
-  main.cpp
-  ${TS_FILES}
-)
+# add_executable(opentera-libraries
+#   main.cpp
+#   ${TS_FILES}
+# )
 
-set(QT_QML_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/qml)
-qt_add_library(opentera_libs_qml STATIC)
-qt_add_qml_module(opentera_libs_qml
-    URI "OpenTeraLibs"
-    VERSION 1.0
-    SOURCES ${opentera_libs_client_user_headers} ${opentera_libs_client_user_srcs}
-            ${opentera_libs_client_device_headers} ${opentera_libs_client_device_srcs}
-)
-
-target_link_libraries(opentera-libraries Qt${QT_VERSION_MAJOR}::Core)
+# target_link_libraries(opentera-libraries Qt${QT_VERSION_MAJOR}::Core)
 
 if(COMMAND qt_create_translation)
     qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
@@ -42,8 +35,16 @@ endif()
 
 add_subdirectory(clients)
 
-include(GNUInstallDirs)
-install(TARGETS opentera-libraries
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-)
+message(STATUS "**** ${opentera_libs_client_user_headers}")
+# qt_add_library(opentera_libs_qml STATIC)
+# qt_add_qml_module(opentera_libs_qml
+#     URI "OpenTeraLibs"
+#     VERSION 1.0
+#     OUTPUT_DIRECTORY ${QT_QML_OUTPUT_DIRECTORY}/OpenTeraLibs
+# )
+
+# include(GNUInstallDirs)
+# install(TARGETS opentera-libraries
+#     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+# )
