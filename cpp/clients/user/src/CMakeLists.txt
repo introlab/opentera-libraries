@@ -12,6 +12,7 @@ set(opentera_libs_client_user_headers
 )
 
 set(opentera_libs_client_user_srcs
+    UserWebAPI.cpp
     UserComManager.cpp
     UserWebSocketManager.cpp
     UserClient.cpp

@@ -99,7 +99,7 @@ void UserComManager::loginToServer(QString username, QString password, QString s
 void UserComManager::login()
 {
     QUrl url(m_serverUrl);
-    url.setPath(WEB_LOGIN_PATH);
+    url.setPath(UserWebAPI::ENDPOINT_USER_LOGIN);
 
     QUrlQuery args;
     args.addQueryItem("with_websockets", "true");
@@ -156,7 +156,7 @@ void UserComManager::login()
 void UserComManager::logout()
 {
     QUrl url(m_serverUrl);
-    url.setPath(WEB_LOGOUT_PATH);
+    url.setPath(UserWebAPI::ENDPOINT_USER_LOGOUT);
 
     QUrlQuery args; // empty
 
@@ -367,7 +367,7 @@ void UserComManager::_stopRefreshTokenTimer()
 void UserComManager::_refreshToken()
 {
     QUrl url(m_serverUrl);
-    url.setPath(WEB_REFRESH_TOKEN_PATH);
+    url.setPath(UserWebAPI::ENDPOINT_USER_REFRESH_TOKEN);
     QUrlQuery args;
     QNetworkReply* reply = _doGet(url, args, QMap<QString, QString>(), true);
 

@@ -6,7 +6,6 @@
 #include "UserComManager.h"
 #include "QNetworkReplyWrapper.h"
 #include <QDebug>
-#include "UserWebAPI.h"
 
 
 class UserClient : public QObject
@@ -22,8 +21,6 @@ class UserClient : public QObject
     Q_PROPERTY(QString clientName READ getClientName WRITE setClientName NOTIFY clientNameChanged)
     Q_PROPERTY(QString clientVersion READ getClientVersion WRITE setClientVersion NOTIFY clientVersionChanged)
 
-    Q_PROPERTY(QString USER_WEB_LOGIN_PATH READ getUSER_WEB_LOGIN_PATH CONSTANT)
-    QString getUSER_WEB_LOGIN_PATH() { return QString(WEB_LOGIN_PATH); }
 
 public:
 
