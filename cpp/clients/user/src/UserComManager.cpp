@@ -120,7 +120,10 @@ void UserComManager::login()
 
                 if (statusCode.toInt() != 200)
                 {
-                    emit loginFailed(reply->errorString());
+                    QString error = reply->errorString();
+                    if (statusCode.toInt() == 401)
+                        error = tr("Invalid username or password.");
+                    emit loginFailed(error);
                 }
                 else if (jsonParseError.error == QJsonParseError::NoError) {
                     if (jsonResponse.isObject())
