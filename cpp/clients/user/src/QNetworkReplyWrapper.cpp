@@ -24,11 +24,7 @@ QNetworkReplyWrapper::QNetworkReplyWrapper(QNetworkReply *reply, bool processFin
             obj->deleteLater();
         });
 
-    if (m_processFinished)
-    {
-        connect(reply, &QNetworkReply::finished, this, &QNetworkReplyWrapper::onRequestfinished);
-    }
-
+    connect(reply, &QNetworkReply::finished, this, &QNetworkReplyWrapper::onRequestfinished);
     connect(reply, &QNetworkReply::downloadProgress, this, &QNetworkReplyWrapper::downloadProgress);
     connect(reply, &QNetworkReply::uploadProgress, this, &QNetworkReplyWrapper::uploadProgress);
     connect(reply, &QNetworkReply::readyRead, this, &QNetworkReplyWrapper::readyRead);
