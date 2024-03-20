@@ -14,7 +14,7 @@ class QNetworkReplyWrapper : public QObject
 
 public:
     QNetworkReplyWrapper(QObject *parent=nullptr);
-    explicit QNetworkReplyWrapper(QNetworkReply *reply, QObject *parent=nullptr);
+    explicit QNetworkReplyWrapper(QNetworkReply *reply, bool processFinished=true);
 
     virtual ~QNetworkReplyWrapper() override;
 
@@ -37,6 +37,7 @@ signals:
     void uploadProgress(qint64 bytesSent, qint64 bytesTotal);
     void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);
     void readyRead();
+    void finished();
 
 protected slots:
     void onRequestfinished();
@@ -45,6 +46,7 @@ protected slots:
 protected:
 
     QSharedPointer<QNetworkReply> m_replyPtr;
+    bool m_processFinished;
 
 };
 

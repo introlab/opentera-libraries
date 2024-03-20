@@ -14,8 +14,8 @@ QNetworkReplyWrapper::QNetworkReplyWrapper(QObject *parent)
 
 }
 
-QNetworkReplyWrapper::QNetworkReplyWrapper(QNetworkReply *reply, QObject *parent)
-    :   QObject(parent)
+QNetworkReplyWrapper::QNetworkReplyWrapper(QNetworkReply *reply, bool processFinished)
+    :   QObject(nullptr), m_processFinished(processFinished)
 {
     Q_ASSERT(reply);
 
@@ -24,12 +24,14 @@ QNetworkReplyWrapper::QNetworkReplyWrapper(QNetworkReply *reply, QObject *parent
             obj->deleteLater();
         });
 
-    connect(reply, &QNetworkReply::finished, this, &QNetworkReplyWrapper::onRequestfinished);
+    if (m_processFinished)
+    {
+        connect(reply, &QNetworkReply::finished, this, &QNetworkReplyWrapper::onRequestfinished);
+    }
+
     connect(reply, &QNetworkReply::downloadProgress, this, &QNetworkReplyWrapper::downloadProgress);
     connect(reply, &QNetworkReply::uploadProgress, this, &QNetworkReplyWrapper::uploadProgress);
     connect(reply, &QNetworkReply::readyRead, this, &QNetworkReplyWrapper::readyRead);
-
-
 }
 
 QNetworkReplyWrapper::~QNetworkReplyWrapper()
@@ -95,23 +97,37 @@ qint64 QNetworkReplyWrapper::write(const QByteArray &data)
 
 void QNetworkReplyWrapper::onRequestfinished()
 {
-    //qDebug() << "QNetworkReplyWrapper::onRequestfinished()";
-    QByteArray responseData = m_replyPtr->readAll();
-    //qDebug() << responseData;
-    QVariant statusCode = m_replyPtr->attribute(QNetworkRequest::HttpStatusCodeAttribute);
 
-    if (statusCode.toInt() != 200)
+    if (m_processFinished)
     {
-        //qDebug() << "QNetworkReplyWrapper emit requestFailed" << responseData << statusCode.toInt();
-        emit requestFailed(QVariant(responseData),statusCode.toInt());
-        return;
-    }
+        //qDebug() << "QNetworkReplyWrapper::onRequestfinished()";
+        QByteArray responseData = m_replyPtr->readAll();
+        //qDebug() << responseData;
+        QVariant statusCode = m_replyPtr->attribute(QNetworkRequest::HttpStatusCodeAttribute);
 
-    QJsonParseError jsonParseError;
-    QJsonDocument jsonResponse = QJsonDocument::fromJson(responseData, &jsonParseError);
-    if (jsonParseError.error == QJsonParseError::NoError) {
-        //qDebug() << "QNetworkReplyWrapper emit requestSucceeded" << jsonResponse << statusCode.toInt();
-        emit requestSucceeded(jsonResponse.toVariant(), statusCode.toInt());
+        if (statusCode.toInt() != 200)
+        {
+            //qDebug() << "QNetworkReplyWrapper emit requestFailed" << responseData << statusCode.toInt();
+            emit requestFailed(QVariant(responseData),statusCode.toInt());
+        }
+        else
+        {
+            QJsonParseError jsonParseError;
+            QJsonDocument jsonResponse = QJsonDocument::fromJson(responseData, &jsonParseError);
+            if (jsonParseError.error == QJsonParseError::NoError) {
+                //qDebug() << "QNetworkReplyWrapper emit requestSucceeded" << jsonResponse << statusCode.toInt();
+                emit requestSucceeded(jsonResponse.toVariant(), statusCode.toInt());
+            }
+            else
+            {
+                //qDebug() << "QNetworkReplyWrapper emit requestFailed" << responseData << statusCode.toInt();
+                emit requestFailed(QVariant(jsonParseError.errorString()),statusCode.toInt());
+            }
+        }
+    }
+    else
+    {
+        emit finished();
     }
 
     // Important, this will deleteLater the reply

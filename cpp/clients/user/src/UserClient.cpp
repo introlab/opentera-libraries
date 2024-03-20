@@ -119,5 +119,5 @@ QNetworkReplyWrapper *UserClient::deleteResource(const QString &endpoint, const 
 QNetworkReplyWrapper *UserClient::download(const QString &endpoint, const QVariantMap &params, const QVariantMap &extra_headers)
 {
     QNetworkReply *reply = m_comManager->download(endpoint, params, extra_headers);
-    return new QNetworkReplyWrapper(reply);
+    return new QNetworkReplyWrapper(reply, false);
 }
