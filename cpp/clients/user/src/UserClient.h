@@ -35,6 +35,9 @@ public:
     Q_INVOKABLE QNetworkReplyWrapper* get(const QString &endpoint, const QVariantMap &params = QVariantMap(), const QVariantMap &extra_headers = QVariantMap());
     Q_INVOKABLE QNetworkReplyWrapper* post(const QString &endpoint, const QVariantMap &params = QVariantMap(), const QVariantMap &data = QVariantMap(),
                                            const QVariantMap &extra_headers = QVariantMap());
+    Q_INVOKABLE QNetworkReplyWrapper* deleteResource(const QString &endpoint, const QVariantMap &params = QVariantMap(), const QVariantMap &extra_headers = QVariantMap());
+
+    Q_INVOKABLE QNetworkReplyWrapper* download(const QString &endpoint, const QVariantMap &params = QVariantMap(), const QVariantMap &extra_headers = QVariantMap());
 
 
     //Getters and Setters

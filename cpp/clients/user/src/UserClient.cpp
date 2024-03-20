@@ -109,3 +109,15 @@ QNetworkReplyWrapper *UserClient::post(const QString &endpoint, const QVariantMa
     QNetworkReply *reply = m_comManager->post(endpoint, params, data, extra_headers);
     return new QNetworkReplyWrapper(reply);
 }
+
+QNetworkReplyWrapper *UserClient::deleteResource(const QString &endpoint, const QVariantMap &params, const QVariantMap &extra_headers)
+{
+    QNetworkReply *reply = m_comManager->deleteResource(endpoint, params, extra_headers);
+    return new QNetworkReplyWrapper(reply);
+}
+
+QNetworkReplyWrapper *UserClient::download(const QString &endpoint, const QVariantMap &params, const QVariantMap &extra_headers)
+{
+    QNetworkReply *reply = m_comManager->download(endpoint, params, extra_headers);
+    return new QNetworkReplyWrapper(reply);
+}

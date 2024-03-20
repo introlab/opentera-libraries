@@ -87,6 +87,49 @@ QNetworkReply *UserComManager::post(const QString &endpoint, const QVariantMap &
     return _doPost(url, query_params, jsonDocument.toJson(), extra_headers_map, true);
 }
 
+QNetworkReply *UserComManager::deleteResource(const QString &endpoint, const QVariantMap &params, const QVariantMap &extra_headers)
+{
+    QUrl url(m_serverUrl);
+    url.setPath(endpoint);
+
+    // Fill query params
+    QUrlQuery query_params;
+    for (auto it = params.begin(); it != params.end(); ++it)
+    {
+        query_params.addQueryItem(it.key(), it.value().toString());
+    }
+
+    // Convert extra_headers to QMap<QString, QString>
+    QMap<QString, QString> extra_headers_map;
+    for (auto it = extra_headers.begin(); it != extra_headers.end(); ++it) {
+        extra_headers_map.insert(it.key(), it.value().toString());
+    }
+
+
+    return _doDelete(url, query_params, extra_headers_map, true);
+}
+
+QNetworkReply *UserComManager::download(const QString &endpoint, const QVariantMap &params, const QVariantMap &extra_headers)
+{
+    QUrl url(m_serverUrl);
+    url.setPath(endpoint);
+
+    // Fill query params
+    QUrlQuery query_params;
+    for (auto it = params.begin(); it != params.end(); ++it)
+    {
+        query_params.addQueryItem(it.key(), it.value().toString());
+    }
+
+    // Convert extra_headers to QMap<QString, QString>
+    QMap<QString, QString> extra_headers_map;
+    for (auto it = extra_headers.begin(); it != extra_headers.end(); ++it) {
+        extra_headers_map.insert(it.key(), it.value().toString());
+    }
+
+    return _doDownload(url, query_params, extra_headers_map, true);
+}
+
 void UserComManager::loginToServer(QString username, QString password, QString server_name)
 {
     m_username = username;
@@ -299,6 +342,40 @@ QNetworkReply* UserComManager::_doGet(const QUrl &url, const QUrlQuery &query_ar
     _setRequestVersions(request);
 
     return m_networkAccessManager->get(request);
+}
+
+QNetworkReply *UserComManager::_doDelete(const QUrl &url, const QUrlQuery &query_args, const QMap<QString, QString> &extra_headers, bool use_token)
+{
+    QUrl query = url;
+    if (!query_args.isEmpty())
+    {
+        query.setQuery(query_args);
+    }
+
+    QNetworkRequest request(query);
+    _setRequestExtraHeaders(request, extra_headers);
+    _setRequestCredentials(request, use_token);
+    _setRequestLanguage(request);
+    _setRequestVersions(request);
+
+    return m_networkAccessManager->deleteResource(request);
+}
+
+QNetworkReply *UserComManager::_doDownload(const QUrl &url, const QUrlQuery &query_args, const QMap<QString, QString> &extra_headers, bool use_token)
+{
+    QUrl query = url;
+    if (!query_args.isEmpty())
+    {
+        query.setQuery(query_args);
+    }
+
+    QNetworkRequest request(query);
+    _setRequestExtraHeaders(request, extra_headers);
+    _setRequestCredentials(request, use_token);
+    _setRequestLanguage(request);
+    _setRequestVersions(request);
+    return m_networkAccessManager->get(request);
+
 }
 
 void UserComManager::_setRequestLanguage(QNetworkRequest &request)

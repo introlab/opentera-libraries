@@ -70,6 +70,12 @@ public:
     //Post
     QNetworkReply* post(const QString &endpoint, const QVariantMap &params = QVariantMap(), const QVariantMap &data = QVariantMap(), const QVariantMap &extra_headers = QVariantMap());
 
+    //Delete
+    QNetworkReply* deleteResource(const QString &endpoint, const QVariantMap &params = QVariantMap(), const QVariantMap &extra_headers = QVariantMap());
+
+    //Download
+    QNetworkReply* download(const QString &endpoint, const QVariantMap &params = QVariantMap(), const QVariantMap &extra_headers = QVariantMap());
+
 public slots:
 
     void loginToServer(QString username, QString password, QString server_name);
@@ -123,6 +129,18 @@ private:
                            bool use_token = true);
 
     QNetworkReply* _doGet(const QUrl &url,
+                          const QUrlQuery &query_args = QUrlQuery(),
+                          const QMap<QString,QString> & extra_headers = QMap<QString, QString>(),
+                          bool use_token = true);
+
+
+    QNetworkReply* _doDelete(const QUrl &url,
+                             const QUrlQuery &query_args = QUrlQuery(),
+                             const QMap<QString,QString> & extra_headers = QMap<QString, QString>(),
+                             bool use_token = true);
+
+
+    QNetworkReply* _doDownload(const QUrl &url,
                           const QUrlQuery &query_args = QUrlQuery(),
                           const QMap<QString,QString> & extra_headers = QMap<QString, QString>(),
                           bool use_token = true);
