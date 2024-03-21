@@ -14,7 +14,7 @@ class QNetworkReplyWrapper : public QObject
 
 public:
     QNetworkReplyWrapper(QObject *parent=nullptr);
-    explicit QNetworkReplyWrapper(QNetworkReply *reply, bool processFinished=true);
+    explicit QNetworkReplyWrapper(QNetworkReply *reply, bool processJSON=true);
 
     virtual ~QNetworkReplyWrapper() override;
 
@@ -46,7 +46,7 @@ protected slots:
 protected:
 
     QSharedPointer<QNetworkReply> m_replyPtr;
-    bool m_processFinished;
+    bool m_processJSON;
 
 };
 

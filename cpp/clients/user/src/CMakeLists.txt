@@ -9,6 +9,7 @@ set(opentera_libs_client_user_headers
     UserWebSocketManager.h
     UserClient.h
     QNetworkReplyWrapper.h
+    FileDownloader.h
 )
 
 set(opentera_libs_client_user_srcs
@@ -17,6 +18,7 @@ set(opentera_libs_client_user_srcs
     UserWebSocketManager.cpp
     UserClient.cpp
     QNetworkReplyWrapper.cpp
+    FileDownloader.cpp
 )
 
 qt_add_qml_module(opentera_libs_client_user_qml

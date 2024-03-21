@@ -5,6 +5,7 @@
 #include <QObject>
 #include "UserComManager.h"
 #include "QNetworkReplyWrapper.h"
+#include "FileDownloader.h"
 #include <QDebug>
 
 
@@ -38,6 +39,8 @@ public:
     Q_INVOKABLE QNetworkReplyWrapper* deleteResource(const QString &endpoint, const QVariantMap &params = QVariantMap(), const QVariantMap &extra_headers = QVariantMap());
 
     Q_INVOKABLE QNetworkReplyWrapper* download(const QString &endpoint, const QVariantMap &params = QVariantMap(), const QVariantMap &extra_headers = QVariantMap());
+
+    Q_INVOKABLE FileDownloader* downloadFile(const QString &filePath, const QString &endpoint, const QVariantMap &params = QVariantMap(), const QVariantMap &extra_headers = QVariantMap());
 
 
     //Getters and Setters

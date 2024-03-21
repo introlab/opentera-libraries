@@ -121,3 +121,9 @@ QNetworkReplyWrapper *UserClient::download(const QString &endpoint, const QVaria
     QNetworkReply *reply = m_comManager->download(endpoint, params, extra_headers);
     return new QNetworkReplyWrapper(reply, false);
 }
+
+FileDownloader *UserClient::downloadFile(const QString &filePath, const QString &endpoint, const QVariantMap &params, const QVariantMap &extra_headers)
+{
+    QNetworkReply *reply = m_comManager->download(endpoint, params, extra_headers);
+    return new FileDownloader(filePath, new QNetworkReplyWrapper(reply, false));
+}

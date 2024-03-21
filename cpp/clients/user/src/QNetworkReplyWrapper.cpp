@@ -14,8 +14,8 @@ QNetworkReplyWrapper::QNetworkReplyWrapper(QObject *parent)
 
 }
 
-QNetworkReplyWrapper::QNetworkReplyWrapper(QNetworkReply *reply, bool processFinished)
-    :   QObject(nullptr), m_processFinished(processFinished)
+QNetworkReplyWrapper::QNetworkReplyWrapper(QNetworkReply *reply, bool processJSON)
+    :   QObject(nullptr), m_processJSON(processJSON)
 {
     Q_ASSERT(reply);
 
@@ -94,7 +94,7 @@ qint64 QNetworkReplyWrapper::write(const QByteArray &data)
 void QNetworkReplyWrapper::onRequestfinished()
 {
 
-    if (m_processFinished)
+    if (m_processJSON)
     {
         //qDebug() << "QNetworkReplyWrapper::onRequestfinished()";
         QByteArray responseData = m_replyPtr->readAll();
