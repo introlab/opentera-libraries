@@ -10,8 +10,8 @@
 #include <QHttpMultiPart>
 #include <QHttpPart>
 #include <QTimer>
+#include <QJsonDocument>
 #include "UserWebSocketManager.h"
-
 
 
 class UserComManager : public QObject
@@ -75,6 +75,9 @@ public:
 
     //Download
     QNetworkReply* download(const QString &endpoint, const QVariantMap &params = QVariantMap(), const QVariantMap &extra_headers = QVariantMap());
+
+
+    QJsonDocument downloadDocumentJson(const QString &endpoint, const QVariantMap &params = QVariantMap(), const QVariantMap &extra_headers = QVariantMap());
 
 public slots:
 

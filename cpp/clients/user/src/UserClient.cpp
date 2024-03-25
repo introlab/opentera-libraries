@@ -1,5 +1,10 @@
 #include "UserClient.h"
 #include <QThread>
+#include <QJsonDocument>
+
+#ifdef OPENTERA_WEBASSEMBLY
+#include <emscripten.h>
+#endif
 
 UserClient::UserClient(QObject *parent)
     :   QObject(parent), m_comManager(nullptr)
@@ -122,8 +127,28 @@ QNetworkReplyWrapper *UserClient::download(const QString &endpoint, const QVaria
     return new QNetworkReplyWrapper(reply, false);
 }
 
+#ifndef OPENTERA_WEBASSEMBLY
 FileDownloader *UserClient::downloadFile(const QString &filePath, const QString &endpoint, const QVariantMap &params, const QVariantMap &extra_headers)
 {
     QNetworkReply *reply = m_comManager->download(endpoint, params, extra_headers);
     return new FileDownloader(filePath, new QNetworkReplyWrapper(reply, false));
 }
+#else
+FileDownloader* UserClient::downloadFile(const QString &filePath, const QString &endpoint, const QVariantMap &params, const QVariantMap &extra_headers)
+{
+    //This should call external javascript function to download file
+    Q_UNUSED(filePath)
+
+    QJsonDocument test = m_comManager->downloadDocumentJson(endpoint, params, extra_headers);
+
+    qDebug() << "Download document " << test.toJson().toStdString().c_str();
+
+    EM_ASM({ window.parent.fileDownloadFromBrowser(UTF8ToString($0)); },
+           test.toJson().toStdString().c_str()
+           );
+
+
+    return nullptr;
+}
+
+#endif

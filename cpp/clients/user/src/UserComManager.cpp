@@ -130,6 +130,55 @@ QNetworkReply *UserComManager::download(const QString &endpoint, const QVariantM
     return _doDownload(url, query_params, extra_headers_map, true);
 }
 
+QJsonDocument UserComManager::downloadDocumentJson(const QString &endpoint, const QVariantMap &params, const QVariantMap &extra_headers)
+{
+    QUrl url(m_serverUrl);
+    url.setPath(endpoint);
+
+    // Fill query params
+    QUrlQuery query_params;
+    for (auto it = params.begin(); it != params.end(); ++it)
+    {
+        query_params.addQueryItem(it.key(), it.value().toString());
+    }
+
+    // Convert extra_headers to QMap<QString, QString>
+    QMap<QString, QString> extra_headers_map;
+    for (auto it = extra_headers.begin(); it != extra_headers.end(); ++it) {
+        extra_headers_map.insert(it.key(), it.value().toString());
+    }
+
+    QUrl query = url;
+    if (!query_params.isEmpty())
+    {
+        query.setQuery(query_params);
+    }
+
+    QNetworkRequest request(query);
+    _setRequestExtraHeaders(request, extra_headers_map);
+    _setRequestCredentials(request, true);
+    _setRequestLanguage(request);
+    _setRequestVersions(request);
+
+    QJsonDocument document;
+
+    qDebug() << "UserComManager::downloadDocumentJson" << request.url().toString();
+
+    QJsonObject rootObject;
+
+    rootObject["url"] = request.url().toString();
+    rootObject["method"] = "GET";
+
+    QVariantMap headers;
+    for (const QByteArray &header : request.rawHeaderList())
+    {
+        headers[header] = request.rawHeader(header);
+    }
+    rootObject["headers"] = QJsonObject::fromVariantMap(headers);
+    document.setObject(rootObject);
+    return document;
+}
+
 void UserComManager::loginToServer(QString username, QString password, QString server_name)
 {
     m_username = username;
