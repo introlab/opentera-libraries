@@ -141,12 +141,9 @@ FileDownloader* UserClient::downloadFile(const QString &filePath, const QString 
 
     QJsonDocument test = m_comManager->downloadDocumentJson(endpoint, params, extra_headers);
 
-    qDebug() << "Download document " << test.toJson().toStdString().c_str();
-
     EM_ASM({ window.parent.fileDownloadFromBrowser(UTF8ToString($0)); },
            test.toJson().toStdString().c_str()
            );
-
 
     return nullptr;
 }
