@@ -1,6 +1,7 @@
 #include "UserClient.h"
 #include <QThread>
 #include <QJsonDocument>
+#include <QJsonObject>
 
 #ifdef OPENTERA_WEBASSEMBLY
 #include <emscripten.h>
@@ -139,10 +140,15 @@ FileDownloader* UserClient::downloadFile(const QString &filePath, const QString 
     //This should call external javascript function to download file
     Q_UNUSED(filePath)
 
-    QJsonDocument test = m_comManager->downloadDocumentJson(endpoint, params, extra_headers);
+    // Add filename to json
+    QJsonDocument document = m_comManager->downloadDocumentJson(endpoint, params, extra_headers);
+    QJsonObject rootObject = document.object();
+    rootObject.insert("filename", filePath);
+    document.setObject(rootObject);
+
 
     EM_ASM({ window.parent.fileDownloadFromBrowser(UTF8ToString($0)); },
-           test.toJson().toStdString().c_str()
+           document.toJson().toStdString().c_str()
            );
 
     return nullptr;
