@@ -31,6 +31,7 @@ public:
     Q_INVOKABLE void connect(const QUrl &url, const QString &username, const QString &password);
     Q_INVOKABLE void disconnect();
     Q_INVOKABLE bool isConnected();
+    Q_INVOKABLE bool isWebAssembly();
 
 
     Q_INVOKABLE QNetworkReplyWrapper* get(const QString &endpoint, const QVariantMap &params = QVariantMap(), const QVariantMap &extra_headers = QVariantMap());

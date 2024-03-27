@@ -44,6 +44,15 @@ bool UserClient::isConnected() {
     return m_comManager->isConnected();
 }
 
+bool UserClient::isWebAssembly()
+{
+#ifdef OPENTERA_WEBASSEMBLY
+    return true;
+#else
+    return false;
+#endif
+}
+
 void UserClient::setUsername(const QString &username)
 {
     m_comManager->setUsername(username);
