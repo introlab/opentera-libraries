@@ -2,6 +2,11 @@
 #include <QDebug>
 #include <QUrl>
 
+FileDownloader::FileDownloader(QObject *parent)
+{
+
+}
+
 FileDownloader::FileDownloader(const QString &filePath, QNetworkReplyWrapper* networkReply, QObject *parent)
     : QObject(parent), m_networkReply(networkReply), m_file(nullptr)
 {

@@ -76,7 +76,7 @@ void TransferringFile::abortTransfer()
     //qDebug() << "Aborting transfer...";
     if (m_status != TransferStatus::ERROR && m_status != TransferStatus::COMPLETED){ // Don't change status if not needed
         m_status = TransferStatus::ABORTED;
-        m_lastError = tr("Transfert annulé");
+        m_lastError = tr("Transfer cancelled");
     }
     m_aborting = true;
     if (m_reply)

@@ -162,7 +162,7 @@ QJsonDocument UserComManager::downloadDocumentJson(const QString &endpoint, cons
 
     QJsonDocument document;
 
-    qDebug() << "UserComManager::downloadDocumentJson" << request.url().toString();
+    //qDebug() << "UserComManager::downloadDocumentJson" << request.url().toString();
 
     QJsonObject rootObject;
 
@@ -208,7 +208,7 @@ void UserComManager::login()
 
 
                 QVariant statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
-                qDebug() << "login status code: " << statusCode;
+                //qDebug() << "login status code: " << statusCode;
 
                 if (statusCode.toInt() != 200)
                 {
@@ -223,11 +223,11 @@ void UserComManager::login()
                         QJsonObject jsonObject = jsonResponse.object();
                         //Access specific fields heres
                         m_token = jsonObject["user_token"].toString();
-                        qDebug() << "token: " << m_token;
+                        //qDebug() << "token: " << m_token;
 
 
                         QString websocketUrl = jsonObject["websocket_url"].toString();
-                        qDebug() << "websocket_url: " << websocketUrl;
+                        //qDebug() << "websocket_url: " << websocketUrl;
                         _connectWebSocket(QUrl(websocketUrl));
                         emit loginSucceeded();
                         _startRefreshTokenTimer();

@@ -78,13 +78,13 @@ void DownloadingFile::onDownloadDataReceived()
                     }
                 }
                 if (m_filename.isEmpty()){
-                    m_lastError = tr("Impossible de déterminer le nom du fichier à télécharger.");
+                    m_lastError = tr("Unable to get filename to download");
                     m_status = TransferringFile::ERROR;
                     abortTransfer();
                     return;
                 }
             }else{
-                m_lastError = tr("Mauvaise en-tête pour le téléchargement du fichier.");
+                m_lastError = tr("Bad header set in file download request");
                 m_status = TransferringFile::ERROR;
                 abortTransfer();
                 return;
@@ -111,7 +111,7 @@ void DownloadingFile::onDownloadDataReceived()
 
 
         if (!m_file.open(QIODevice::WriteOnly)){
-            m_lastError = tr("Impossible d'ouvrir le fichier '") + getFullFilename() + "': " + m_file.errorString();
+            m_lastError = tr("Unable to open file") + " '" + getFullFilename() + "': " + m_file.errorString();
             m_status = TransferringFile::ERROR;
             abortTransfer();
             return;

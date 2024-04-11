@@ -13,6 +13,7 @@ class FileDownloader : public QObject
     QML_ELEMENT
 
 public:
+    FileDownloader(QObject *parent=nullptr);
     FileDownloader(const QString &filePath, QNetworkReplyWrapper* networkReply, QObject *parent=nullptr);
 
     Q_INVOKABLE QNetworkReplyWrapper* getNetworkReply();

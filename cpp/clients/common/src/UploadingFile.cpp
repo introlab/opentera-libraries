@@ -27,7 +27,7 @@ bool UploadingFile::setFile(const QString &file_name)
 
     // Get informations about file
     if (!QFile::exists(file_name)){
-        m_lastError = tr("Impossible d'envoyer le fichier") + " " + file_name + ": " + tr("le fichier est introuvable.");
+        m_lastError = tr("Unable to upload file") + " " + file_name + ": " + tr("file not found");
         // TODO Signal error
         //LOG_ERROR(m_lastError, "UploadingFile::setFile");
         return false;

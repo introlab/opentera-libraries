@@ -624,7 +624,7 @@ void BaseComManager::startFileUpload(UploadingFile *upload_file, QNetworkRequest
         connect(upload_file, &UploadingFile::transferAborted, this, &BaseComManager::onTransferAborted);
     }else{
         upload_file->setStatus(TransferringFile::ERROR);
-        upload_file->setLastError(tr("Impossible de créer la requête"));
+        upload_file->setLastError(tr("Unable to create network request"));
         emit transferError(upload_file);
         upload_file->deleteLater();
     }
@@ -648,7 +648,7 @@ void BaseComManager::startFileDownload(DownloadingFile *download_file, QNetworkR
         connect(download_file, &DownloadingFile::transferAborted, this, &BaseComManager::onTransferAborted);
     }else{
         download_file->setStatus(TransferringFile::ERROR);
-        download_file->setLastError(tr("Impossible de créer la requête"));
+        download_file->setLastError(tr("Unable to create network request"));
         emit transferError(download_file);
         download_file->deleteLater();
     }
