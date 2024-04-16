@@ -1,0 +1,3 @@
+[submodule "cpp/submodules/opentera_messages"]
+	path = cpp/submodules/opentera_messages
+	url = https://github.com/introlab/opentera_messages.git

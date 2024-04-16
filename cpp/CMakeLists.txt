@@ -32,7 +32,7 @@ else()
     qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 endif()
 
-
+add_subdirectory(submodules)
 add_subdirectory(clients)
 
 message(STATUS "**** ${opentera_libs_client_user_headers}")
