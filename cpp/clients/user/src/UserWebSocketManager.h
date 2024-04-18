@@ -4,6 +4,20 @@
 #include <QObject>
 #include <QUrl>
 #include <QWebSocket>
+#include <QProtobufJsonSerializer>
+
+//Protobuf messages
+#include <opentera/protobuf/ArchiveEvent.qpb.h>
+#include <opentera/protobuf/DatabaseEvent.qpb.h>
+#include <opentera/protobuf/DeviceEvent.qpb.h>
+#include <opentera/protobuf/JoinSessionEvent.qpb.h>
+#include <opentera/protobuf/JoinSessionReplyEvent.qpb.h>
+#include <opentera/protobuf/LeaveSessionEvent.qpb.h>
+#include <opentera/protobuf/ParticipantEvent.qpb.h>
+#include <opentera/protobuf/StopSessionEvent.qpb.h>
+#include <opentera/protobuf/TeraEvent.qpb.h>
+#include <opentera/protobuf/UserEvent.qpb.h>
+
 
 class UserWebSocketManager : public QObject
 {
@@ -16,10 +30,19 @@ public:
 
     void connectTo(const QUrl &url);
     void close();
-
     bool isConnected();
 
 signals:
+
+    void archiveEvent(const opentera::protobuf::ArchiveEvent &event);
+    void databaseEvent(const opentera::protobuf::DatabaseEvent &event);
+    void deviceEvent(const opentera::protobuf::DeviceEvent &event);
+    void joinSessionEvent(const opentera::protobuf::JoinSessionEvent &event);
+    void joinSessionReplyEvent(const opentera::protobuf::JoinSessionReplyEvent &event);
+    void leaveSessionEvent(const opentera::protobuf::LeaveSessionEvent &event);
+    void participantEvent(const opentera::protobuf::ParticipantEvent &event);
+    void stopSessionEvent(const opentera::protobuf::StopSessionEvent &event);
+    void userEvent(const opentera::protobuf::UserEvent &event);
 
 private slots:
     void onBinaryMessageReceived(const QByteArray &message);
@@ -32,6 +55,8 @@ private slots:
 
 private:
     bool m_verifySsl;
+    QProtobufJsonSerializer m_protobufSerializer;
+
 
 };
 #endif // USERWEBSOCKETMANAGER_H
