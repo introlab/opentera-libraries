@@ -17,6 +17,7 @@
 #include <opentera/protobuf/StopSessionEvent.qpb.h>
 #include <opentera/protobuf/TeraEvent.qpb.h>
 #include <opentera/protobuf/UserEvent.qpb.h>
+#include <opentera/protobuf/TeraMessage.qpb.h>
 
 
 class UserWebSocketManager : public QObject
@@ -34,6 +35,8 @@ public:
 
 signals:
 
+    void websocketConnected();
+    void websocketDisconnected();
     void archiveEvent(const opentera::protobuf::ArchiveEvent &event);
     void databaseEvent(const opentera::protobuf::DatabaseEvent &event);
     void deviceEvent(const opentera::protobuf::DeviceEvent &event);
@@ -55,8 +58,18 @@ private slots:
 
 private:
     bool m_verifySsl;
+    // JsonSerializer not working yet.
     QProtobufJsonSerializer m_protobufSerializer;
 
+    bool parseArchiveEvent(opentera::protobuf::ArchiveEvent &event, const QJsonObject &jsonObject);
+    bool parseDatabaseEvent(opentera::protobuf::DatabaseEvent &event, const QJsonObject &jsonObject);
+    bool parseDeviceEvent(opentera::protobuf::DeviceEvent &event, const QJsonObject &jsonObject);
+    bool parseJoinSessionEvent(opentera::protobuf::JoinSessionEvent &event, const QJsonObject &jsonObject);
+    bool parseJoinSessionReplyEvent(opentera::protobuf::JoinSessionReplyEvent &event, const QJsonObject &jsonObject);
+    bool parseLeaveSessionEvent(opentera::protobuf::LeaveSessionEvent &event, const QJsonObject &jsonObject);
+    bool parseParticipantEvent(opentera::protobuf::ParticipantEvent &event, const QJsonObject &jsonObject);
+    bool parseStopSessionEvent(opentera::protobuf::StopSessionEvent &event, const QJsonObject &jsonObject);
+    bool parseUserEvent(opentera::protobuf::UserEvent &event, const QJsonObject &jsonObject);
 
 };
 #endif // USERWEBSOCKETMANAGER_H

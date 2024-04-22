@@ -49,7 +49,29 @@ void UserWebSocketManager::onBinaryMessageReceived(const QByteArray &message)
 
 void UserWebSocketManager::onTextMessageReceived(const QString &message)
 {
-    qDebug() << "onTextMessageReceived" << message;
+
+    // The following code should work but does not.
+    // We will manually parse the JSON data instead until the problem is fixed.
+
+    /*
+        //We are receiving a JSON serialized protobuf / TeraMessage
+        opentera::protobuf::TeraMessage rootMessage;
+
+
+        if (rootMessage.deserialize(&m_protobufSerializer, message.toUtf8()))
+        {
+            qDebug() << "Got Message !";
+            //Convert Any Message to TeraEvent Message (optional should be verified)
+            auto optionalTeraEvent = rootMessage.message().as<opentera::protobuf::TeraEvent>(&m_protobufSerializer);
+            if (optionalTeraEvent) {
+                opentera::protobuf::TeraEvent event = optionalTeraEvent.value();
+
+                qDebug() << "Event size: " << event.events().size();
+            }
+        }
+    */
+
+    //qDebug() << "onTextMessageReceived" << message;
     opentera::protobuf::TeraEvent event;
 
     //Manually load JSON document because it contains another "message" object
@@ -94,125 +116,45 @@ void UserWebSocketManager::onTextMessageReceived(const QString &message)
                 auto eventObject = eventValue.toObject();
                 auto type = eventObject["@type"].toString();
 
-                if (type == "type.googleapis.com/opentera.protobuf.UserEvent")
+                // TODO Parse all message events
+                if (type == "type.googleapis.com/opentera.protobuf.ArchiveEvent")
+                {
+                    opentera::protobuf::ArchiveEvent myEvent;
+                    if (parseArchiveEvent(myEvent, eventObject))
+                    {
+                        emit archiveEvent(myEvent);
+                    }
+                }
+                else if (type == "type.googleapis.com/opentera.protobuf.DeviceEvent")
+                {
+                    opentera::protobuf::DeviceEvent myEvent;
+                    if (parseDeviceEvent(myEvent, eventObject))
+                    {
+                        emit deviceEvent(myEvent);
+                    }
+                }
+                else if (type == "type.googleapis.com/opentera.protobuf.ParticipantEvent")
+                {
+                    opentera::protobuf::ParticipantEvent myEvent;
+                    if (parseParticipantEvent(myEvent, eventObject))
+                    {
+                        emit participantEvent(myEvent);
+                    }
+
+                }
+                else if (type == "type.googleapis.com/opentera.protobuf.UserEvent")
                 {
                     opentera::protobuf::UserEvent myEvent;
-
-                    if (eventObject.contains("userUuid"))
+                    if (parseUserEvent(myEvent, eventObject))
                     {
-                        myEvent.setUserUuid(eventObject["userUuid"].toString());
+                        emit userEvent(myEvent);
                     }
-
-                    if (eventObject.contains("type"))
-                    {
-                        opentera::protobuf::UserEvent::EventType myType;
-                        if (eventObject["type"].toString() == "USER_UNKNOWN")
-                        {
-                            myType = opentera::protobuf::UserEvent::EventType::USER_UNKNOWN;
-                        }
-                        else if (eventObject["type"].toString() == "USER_CONNECTED")
-                        {
-                            myType = opentera::protobuf::UserEvent::EventType::USER_CONNECTED;
-                        }
-                        else if (eventObject["type"].toString() == "USER_DISCONNECTED")
-                        {
-                            myType = opentera::protobuf::UserEvent::EventType::USER_DISCONNECTED;
-                        }
-                        else if (eventObject["type"].toString() == "USER_DELETED")
-                        {
-                            myType = opentera::protobuf::UserEvent::EventType::USER_DELETED;
-                        }
-                        else if (eventObject["type"].toString() == "USER_ADDED")
-                        {
-                            myType = opentera::protobuf::UserEvent::EventType::USER_ADDED;
-                        }
-                        else if (eventObject["type"].toString() == "USER_UPDATED")
-                        {
-                            myType = opentera::protobuf::UserEvent::EventType::USER_UPDATED;
-                        }
-                        else if (eventObject["type"].toString() == "USER_JOINED_SESSION")
-                        {
-                            myType = opentera::protobuf::UserEvent::EventType::USER_JOINED_SESSION;
-                        }
-                        else if (eventObject["type"].toString() == "USER_LEFT_SESSION")
-                        {
-                            myType = opentera::protobuf::UserEvent::EventType::USER_LEFT_SESSION;
-                        }
-
-                        myEvent.setType(myType);
-                        //myEvent.setType(eventObject["type"].toString());
-                    }
-
-                    if (eventObject.contains("userFullname"))
-                    {
-                       myEvent.setUserFullname(eventObject["userFullname"].toString());
-                    }
-
-                    emit userEvent(myEvent);
                 }
-
             }
         }
 
     }
 
-#if 0
-    if (event.events().size() > 0)
-    {
-        qDebug() << "Number of events " << event.events().size();
-        qDebug() << "Event: " << event.hasHeader();
-        qDebug() << "Event Unkwnown fields: " << event.unknownFieldNumbers();
-
-
-        foreach (auto anyMsg, event.events())
-        {
-            if (auto newArchiveEvent = anyMsg.as<opentera::protobuf::ArchiveEvent>(&m_protobufSerializer))
-            {
-                emit archiveEvent(newArchiveEvent.value());
-            }
-            else if (auto newDatabaseEvent = anyMsg.as<opentera::protobuf::DatabaseEvent>(&m_protobufSerializer))
-            {
-                emit databaseEvent(newDatabaseEvent.value());
-            }
-            else if (auto newDeviceEvent = anyMsg.as<opentera::protobuf::DeviceEvent>(&m_protobufSerializer))
-            {
-                emit deviceEvent(newDeviceEvent.value());
-            }
-            else if (auto newJoinSessionEvent = anyMsg.as<opentera::protobuf::JoinSessionEvent>(&m_protobufSerializer))
-            {
-                emit joinSessionEvent(newJoinSessionEvent.value());
-            }
-            else if (auto newJoinSessionReplyEvent = anyMsg.as<opentera::protobuf::JoinSessionReplyEvent>(&m_protobufSerializer))
-            {
-                emit joinSessionReplyEvent(newJoinSessionReplyEvent.value());
-            }
-            else if (auto newLeaveSessionEvent = anyMsg.as<opentera::protobuf::LeaveSessionEvent>(&m_protobufSerializer))
-            {
-                emit leaveSessionEvent(newLeaveSessionEvent.value());
-            }
-            else if (auto newParticipantEvent = anyMsg.as<opentera::protobuf::ParticipantEvent>(&m_protobufSerializer))
-            {
-                emit participantEvent(newParticipantEvent.value());
-            }
-            else if (auto newStopSessionEvent = anyMsg.as<opentera::protobuf::StopSessionEvent>(&m_protobufSerializer))
-            {
-                emit stopSessionEvent(newStopSessionEvent.value());
-            }
-            else if (auto newUserEvent = anyMsg.as<opentera::protobuf::UserEvent>(&m_protobufSerializer))
-            {
-                emit userEvent(newUserEvent.value());
-            }
-            else
-            {
-                qDebug() << "onTextMessageReceived: Unknown message type" << message;
-            }
-        }
-    }
-    else
-    {
-        qDebug() << "onTextMessageReceived: Error deserializing message" << message;
-    }
-#endif
 }
 
 #ifndef OPENTERA_WEBASSEMBLY
@@ -234,10 +176,311 @@ void UserWebSocketManager::onSslErrors(const QList<QSslError> &errors)
 
 void UserWebSocketManager::onConnected()
 {
-
+    emit websocketConnected();
 }
 
 void UserWebSocketManager::onDisconnected()
 {
+    emit websocketDisconnected();
+}
 
+bool UserWebSocketManager::parseArchiveEvent(opentera::protobuf::ArchiveEvent &event, const QJsonObject &jsonObject)
+{
+    if (jsonObject.contains("archiveUuid"))
+    {
+        event.setArchiveUuid(jsonObject["archiveUuid"].toString());
+    }
+    else {
+        return false;
+    }
+
+    if (jsonObject.contains("ownerUuid"))
+    {
+        event.setOwnerUuid(jsonObject["ownerUuid"].toString());
+    }
+    else {
+        return false;
+    }
+
+    if (jsonObject.contains("archiveUrl"))
+    {
+        event.setArchiveUrl(jsonObject["archiveUrl"].toString());
+    }
+    else {
+        return false;
+    }
+
+    if (jsonObject.contains("status"))
+    {
+        opentera::protobuf::ArchiveEvent::StatusType myType;
+        if (jsonObject["status"].toString() == "STATUS_PENDING")
+        {
+            myType = opentera::protobuf::ArchiveEvent::StatusType::STATUS_PENDING;
+        }
+        else if (jsonObject["status"].toString() == "STATUS_INPROGRESS")
+        {
+            myType = opentera::protobuf::ArchiveEvent::StatusType::STATUS_INPROGRESS;
+        }
+        else if (jsonObject["status"].toString() == "STATUS_COMPLETED")
+        {
+            myType = opentera::protobuf::ArchiveEvent::StatusType::STATUS_COMPLETED;
+        }
+        else if (jsonObject["status"].toString() == "STATUS_CANCELLED")
+        {
+            myType = opentera::protobuf::ArchiveEvent::StatusType::STATUS_CANCELLED;
+        }
+        else if (jsonObject["status"].toString() == "STATUS_DELETED")
+        {
+            myType = opentera::protobuf::ArchiveEvent::StatusType::STATUS_DELETED;
+        }
+
+        event.setStatus(myType);
+    }
+    else {
+        return false;
+    }
+
+    // Everything ok!
+    return true;
+}
+
+bool UserWebSocketManager::parseDatabaseEvent(opentera::protobuf::DatabaseEvent &event, const QJsonObject &jsonObject)
+{
+    // TODO parse DatabaseEvent
+    return false;
+}
+
+bool UserWebSocketManager::parseDeviceEvent(opentera::protobuf::DeviceEvent &event, const QJsonObject &jsonObject)
+{
+    if (jsonObject.contains("deviceUuid"))
+    {
+        event.setDeviceUuid(jsonObject["deviceUuid"].toString());
+    }
+    else {
+        return false;
+    }
+
+    if (jsonObject.contains("type"))
+    {
+        opentera::protobuf::DeviceEvent::EventType myType;
+        if (jsonObject["type"].toString() == "DEVICE_UNKNOWN")
+        {
+            myType = opentera::protobuf::DeviceEvent::EventType::DEVICE_UNKNOWN;
+        }
+        else if (jsonObject["type"].toString() == "DEVICE_CONNECTED")
+        {
+            myType = opentera::protobuf::DeviceEvent::EventType::DEVICE_CONNECTED;
+        }
+        else if (jsonObject["type"].toString() == "DEVICE_DISCONNECTED")
+        {
+            myType = opentera::protobuf::DeviceEvent::EventType::DEVICE_DISCONNECTED;
+        }
+        else if (jsonObject["type"].toString() == "DEVICE_DELETED")
+        {
+            myType = opentera::protobuf::DeviceEvent::EventType::DEVICE_DELETED;
+        }
+        else if (jsonObject["type"].toString() == "DEVICE_ADDED")
+        {
+            myType = opentera::protobuf::DeviceEvent::EventType::DEVICE_ADDED;
+        }
+        else if (jsonObject["type"].toString() == "DEVICE_JOINED_SESSION")
+        {
+            myType = opentera::protobuf::DeviceEvent::EventType::DEVICE_JOINED_SESSION;
+        }
+        else if (jsonObject["type"].toString() == "DEVICE_LEFT_SESSION")
+        {
+            myType = opentera::protobuf::DeviceEvent::EventType::DEVICE_LEFT_SESSION;
+        }
+        else if (jsonObject["type"].toString() == "DEVICE_STATUS_CHANGED")
+        {
+            myType = opentera::protobuf::DeviceEvent::EventType::DEVICE_STATUS_CHANGED;
+        }
+        event.setType(myType);
+    }
+    else {
+        return false;
+    }
+
+    if (jsonObject.contains("deviceName"))
+    {
+        event.setDeviceName(jsonObject["deviceName"].toString());
+    }
+    else {
+        return false;
+    }
+
+    if (jsonObject.contains("deviceStatus"))
+    {
+        event.setDeviceStatus(jsonObject["deviceStatus"].toString());
+    }
+    else {
+        return false;
+    }
+
+    // Everything ok!
+    return true;
+}
+
+bool UserWebSocketManager::parseJoinSessionEvent(opentera::protobuf::JoinSessionEvent &event, const QJsonObject &jsonObject)
+{
+    // TODO parse JoinSessionEvent
+    return false;
+}
+
+bool UserWebSocketManager::parseJoinSessionReplyEvent(opentera::protobuf::JoinSessionReplyEvent &event, const QJsonObject &jsonObject)
+{
+    // TODO parse JoinSessionReplyEvent
+    return false;
+}
+
+bool UserWebSocketManager::parseLeaveSessionEvent(opentera::protobuf::LeaveSessionEvent &event, const QJsonObject &jsonObject)
+{
+    // TODO parse LeaveSessionEvent
+    return false;
+}
+
+bool UserWebSocketManager::parseParticipantEvent(opentera::protobuf::ParticipantEvent &event, const QJsonObject &jsonObject)
+{
+    if (jsonObject.contains("participantUuid"))
+    {
+        event.setParticipantUuid(jsonObject["participantUuid"].toString());
+    }
+    else {
+        return false;
+    }
+
+    if (jsonObject.contains("type"))
+    {
+        opentera::protobuf::ParticipantEvent::EventType myType;
+        if (jsonObject["type"].toString() == "PARTICIPANT_UNKNOWN")
+        {
+            myType = opentera::protobuf::ParticipantEvent::EventType::PARTICIPANT_UNKNOWN;
+        }
+        else if (jsonObject["type"].toString() == "PARTICIPANT_CONNECTED")
+        {
+            myType = opentera::protobuf::ParticipantEvent::EventType::PARTICIPANT_CONNECTED;
+        }
+        else if (jsonObject["type"].toString() == "PARTICIPANT_DISCONNECTED")
+        {
+            myType = opentera::protobuf::ParticipantEvent::EventType::PARTICIPANT_DISCONNECTED;
+        }
+        else if (jsonObject["type"].toString() == "PARTICIPANT_DELETED")
+        {
+            myType = opentera::protobuf::ParticipantEvent::EventType::PARTICIPANT_DELETED;
+        }
+        else if (jsonObject["type"].toString() == "PARTICIPANT_ADDED")
+        {
+            myType = opentera::protobuf::ParticipantEvent::EventType::PARTICIPANT_ADDED;
+        }
+        else if (jsonObject["type"].toString() == "PARTICIPANT_JOINED_SESSION")
+        {
+            myType = opentera::protobuf::ParticipantEvent::EventType::PARTICIPANT_JOINED_SESSION;
+        }
+        else if (jsonObject["type"].toString() == "PARTICIPANT_LEFT_SESSION")
+        {
+            myType = opentera::protobuf::ParticipantEvent::EventType::PARTICIPANT_LEFT_SESSION;
+        }
+        event.setType(myType);
+    }
+    else {
+        return false;
+    }
+
+    if (jsonObject.contains("participantName"))
+    {
+        event.setParticipantName(jsonObject["participantName"].toString());
+    }
+    else {
+        return false;
+    }
+
+    if (jsonObject.contains("participantProjectName"))
+    {
+        event.setParticipantProjectName(jsonObject["participantProjectName"].toString());
+    }
+    else {
+        return false;
+    }
+
+    if (jsonObject.contains("participantSiteName"))
+    {
+        event.setParticipantSiteName(jsonObject["participantSiteName"].toString());
+    }
+    else {
+        return false;
+    }
+
+    // Everything ok!
+    return true;
+}
+
+bool UserWebSocketManager::parseStopSessionEvent(opentera::protobuf::StopSessionEvent &event, const QJsonObject &jsonObject)
+{
+    // TODO parse StopSessionEvent
+    return false;
+}
+
+bool UserWebSocketManager::parseUserEvent(opentera::protobuf::UserEvent &event, const QJsonObject &jsonObject)
+{
+    if (jsonObject.contains("userUuid"))
+    {
+        event.setUserUuid(jsonObject["userUuid"].toString());
+    }
+    else {
+        return false;
+    }
+
+    if (jsonObject.contains("type"))
+    {
+        opentera::protobuf::UserEvent::EventType myType;
+        if (jsonObject["type"].toString() == "USER_UNKNOWN")
+        {
+            myType = opentera::protobuf::UserEvent::EventType::USER_UNKNOWN;
+        }
+        else if (jsonObject["type"].toString() == "USER_CONNECTED")
+        {
+            myType = opentera::protobuf::UserEvent::EventType::USER_CONNECTED;
+        }
+        else if (jsonObject["type"].toString() == "USER_DISCONNECTED")
+        {
+            myType = opentera::protobuf::UserEvent::EventType::USER_DISCONNECTED;
+        }
+        else if (jsonObject["type"].toString() == "USER_DELETED")
+        {
+            myType = opentera::protobuf::UserEvent::EventType::USER_DELETED;
+        }
+        else if (jsonObject["type"].toString() == "USER_ADDED")
+        {
+            myType = opentera::protobuf::UserEvent::EventType::USER_ADDED;
+        }
+        else if (jsonObject["type"].toString() == "USER_UPDATED")
+        {
+            myType = opentera::protobuf::UserEvent::EventType::USER_UPDATED;
+        }
+        else if (jsonObject["type"].toString() == "USER_JOINED_SESSION")
+        {
+            myType = opentera::protobuf::UserEvent::EventType::USER_JOINED_SESSION;
+        }
+        else if (jsonObject["type"].toString() == "USER_LEFT_SESSION")
+        {
+            myType = opentera::protobuf::UserEvent::EventType::USER_LEFT_SESSION;
+        }
+
+        event.setType(myType);
+        //myEvent.setType(eventObject["type"].toString());
+    }
+    else {
+        return false;
+    }
+
+    if (jsonObject.contains("userFullname"))
+    {
+        event.setUserFullname(jsonObject["userFullname"].toString());
+    }
+    else {
+        return false;
+    }
+
+    // Everything ok!
+    return true;
 }

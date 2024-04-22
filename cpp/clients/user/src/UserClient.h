@@ -84,9 +84,23 @@ signals:
     void clientNameChanged();
     void clientVersionChanged();
 
+    // From WebSocket
+    void websocketConnected();
+    void websocketDisconnected();
+    void archiveEvent(const opentera::protobuf::ArchiveEvent &event);
+    void databaseEvent(const opentera::protobuf::DatabaseEvent &event);
+    void deviceEvent(const opentera::protobuf::DeviceEvent &event);
+    void joinSessionEvent(const opentera::protobuf::JoinSessionEvent &event);
+    void joinSessionReplyEvent(const opentera::protobuf::JoinSessionReplyEvent &event);
+    void leaveSessionEvent(const opentera::protobuf::LeaveSessionEvent &event);
+    void participantEvent(const opentera::protobuf::ParticipantEvent &event);
+    void stopSessionEvent(const opentera::protobuf::StopSessionEvent &event);
+    void userEvent(const opentera::protobuf::UserEvent &event);
+
 protected:
 
     UserComManager *m_comManager;
+
 };
 
 

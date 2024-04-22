@@ -19,6 +19,18 @@ UserClient::UserClient(QObject *parent)
     QObject::connect(m_comManager, &UserComManager::logoutFailed, this, &UserClient::logoutFailed);
     QObject::connect(m_comManager, &UserComManager::tokenRefreshed, this, &UserClient::tokenChanged);
 
+    // Websocket signals
+    QObject::connect(m_comManager, &UserComManager::websocketConnected, this, &UserClient::websocketConnected);
+    QObject::connect(m_comManager, &UserComManager::websocketDisconnected, this, &UserClient::websocketDisconnected);
+    QObject::connect(m_comManager, &UserComManager::archiveEvent, this, &UserClient::archiveEvent);
+    QObject::connect(m_comManager, &UserComManager::databaseEvent, this, &UserClient::databaseEvent);
+    QObject::connect(m_comManager, &UserComManager::deviceEvent, this, &UserClient::deviceEvent);
+    QObject::connect(m_comManager, &UserComManager::joinSessionEvent, this, &UserClient::joinSessionEvent);
+    QObject::connect(m_comManager, &UserComManager::joinSessionReplyEvent, this, &UserClient::joinSessionReplyEvent);
+    QObject::connect(m_comManager, &UserComManager::leaveSessionEvent, this, &UserClient::leaveSessionEvent);
+    QObject::connect(m_comManager, &UserComManager::participantEvent, this, &UserClient::participantEvent);
+    QObject::connect(m_comManager, &UserComManager::stopSessionEvent, this, &UserClient::stopSessionEvent);
+    QObject::connect(m_comManager, &UserComManager::userEvent, this, &UserClient::userEvent);
 }
 
 UserClient::~UserClient()

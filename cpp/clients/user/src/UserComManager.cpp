@@ -28,6 +28,20 @@ UserComManager::UserComManager(bool verify_ssl, QObject *parent)
 #endif
     connect(m_networkAccessManager, &QNetworkAccessManager::authenticationRequired, this, &UserComManager::onNetworkAuthenticationRequired);
 
+
+    // Websocket signals
+    connect(m_websocketManager, &UserWebSocketManager::websocketConnected, this, &UserComManager::websocketConnected);
+    connect(m_websocketManager, &UserWebSocketManager::websocketDisconnected, this, &UserComManager::websocketDisconnected);
+    connect(m_websocketManager, &UserWebSocketManager::archiveEvent, this, &UserComManager::archiveEvent);
+    connect(m_websocketManager, &UserWebSocketManager::databaseEvent, this, &UserComManager::databaseEvent);
+    connect(m_websocketManager, &UserWebSocketManager::deviceEvent, this, &UserComManager::deviceEvent);
+    connect(m_websocketManager, &UserWebSocketManager::joinSessionEvent, this, &UserComManager::joinSessionEvent);
+    connect(m_websocketManager, &UserWebSocketManager::joinSessionReplyEvent, this, &UserComManager::joinSessionReplyEvent);
+    connect(m_websocketManager, &UserWebSocketManager::leaveSessionEvent, this, &UserComManager::leaveSessionEvent);
+    connect(m_websocketManager, &UserWebSocketManager::participantEvent, this, &UserComManager::participantEvent);
+    connect(m_websocketManager, &UserWebSocketManager::stopSessionEvent, this, &UserComManager::stopSessionEvent);
+    connect(m_websocketManager, &UserWebSocketManager::userEvent, this, &UserComManager::userEvent);
+
 }
 
 bool UserComManager::isConnected()
