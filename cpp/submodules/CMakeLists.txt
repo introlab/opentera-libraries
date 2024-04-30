@@ -62,8 +62,8 @@ qt_add_protobuf(opentera_libraries_messages
     PROTO_INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/opentera_messages/proto
         ${CMAKE_CURRENT_BINARY_DIR}/protoc/include
-    QML
-    QML_URI OpenTeraLibs.Protobuf
+    # QML
+    # QML_URI OpenTeraLibs.Protobuf
 )
 
 
@@ -73,8 +73,8 @@ target_include_directories(opentera_libraries_messages PUBLIC
     ${CMAKE_CURRENT_BINARY_DIR}/proto/opentera/protobuf
     ${CMAKE_CURRENT_BINARY_DIR}/protoc/include)
 
-add_custom_target(deploy-protobuf-qml ALL
-    DEPENDS opentera_libraries_messages
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_BINARY_DIR}/OpenTeraLibs ${QT_QML_OUTPUT_DIRECTORY}/OpenTeraLibs
-)
+# add_custom_target(deploy-protobuf-qml ALL
+#    DEPENDS opentera_libraries_messages
+#    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_BINARY_DIR}/OpenTeraLibs ${QT_QML_OUTPUT_DIRECTORY}/OpenTeraLibs
+#)
 

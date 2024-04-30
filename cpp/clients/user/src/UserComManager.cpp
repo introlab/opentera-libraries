@@ -147,7 +147,6 @@ QNetworkReply *UserComManager::download(const QString &endpoint, const QVariantM
 QJsonDocument UserComManager::downloadDocumentJson(const QString &endpoint, const QVariantMap &params, const QVariantMap &extra_headers)
 {
     QUrl url(m_serverUrl);
-    url.setPath(endpoint);
 
     // Fill query params
     QUrlQuery query_params;
@@ -162,7 +161,12 @@ QJsonDocument UserComManager::downloadDocumentJson(const QString &endpoint, cons
         extra_headers_map.insert(it.key(), it.value().toString());
     }
 
-    QUrl query = url;
+    QUrl query;
+    query.setHost(url.host());
+    query.setPort(url.port());
+    query.setScheme(url.scheme());
+    query.setPath(endpoint);
+
     if (!query_params.isEmpty())
     {
         query.setQuery(query_params);

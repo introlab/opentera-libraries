@@ -158,15 +158,11 @@ FileDownloader *UserClient::downloadFile(const QString &filePath, const QString 
 #else
 FileDownloader* UserClient::downloadFile(const QString &filePath, const QString &endpoint, const QVariantMap &params, const QVariantMap &extra_headers)
 {
-    //This should call external javascript function to download file
-    Q_UNUSED(filePath)
-
     // Add filename to json
     QJsonDocument document = m_comManager->downloadDocumentJson(endpoint, params, extra_headers);
     QJsonObject rootObject = document.object();
     rootObject.insert("filename", filePath);
     document.setObject(rootObject);
-
 
     EM_ASM({ window.parent.fileDownloadFromBrowser(UTF8ToString($0)); },
            document.toJson().toStdString().c_str()
