@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QUrl>
 #include <QWebSocket>
-#include <QProtobufJsonSerializer>
+//#include <QProtobufJsonSerializer>
 
 //Protobuf messages
 #include <opentera/protobuf/ArchiveEvent.qpb.h>
@@ -59,7 +59,7 @@ private slots:
 private:
     bool m_verifySsl;
     // JsonSerializer not working yet.
-    QProtobufJsonSerializer m_protobufSerializer;
+    //QProtobufJsonSerializer m_protobufSerializer;
 
     bool parseArchiveEvent(opentera::protobuf::ArchiveEvent &event, const QJsonObject &jsonObject);
     bool parseDatabaseEvent(opentera::protobuf::DatabaseEvent &event, const QJsonObject &jsonObject);
