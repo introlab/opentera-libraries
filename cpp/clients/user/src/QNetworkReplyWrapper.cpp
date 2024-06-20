@@ -110,7 +110,7 @@ void QNetworkReplyWrapper::onRequestfinished()
         {
             QJsonParseError jsonParseError;
             QJsonDocument jsonResponse = QJsonDocument::fromJson(responseData, &jsonParseError);
-            if (jsonParseError.error == QJsonParseError::NoError) {
+            if (jsonParseError.error == QJsonParseError::NoError || responseData.length() <= 3) {
                 //qDebug() << "QNetworkReplyWrapper emit requestSucceeded" << jsonResponse << statusCode.toInt();
                 emit requestSucceeded(jsonResponse.toVariant(), statusCode.toInt());
             }
