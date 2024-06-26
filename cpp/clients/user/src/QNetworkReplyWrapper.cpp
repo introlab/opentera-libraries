@@ -110,14 +110,19 @@ void QNetworkReplyWrapper::onRequestfinished()
         {
             QJsonParseError jsonParseError;
             QJsonDocument jsonResponse = QJsonDocument::fromJson(responseData, &jsonParseError);
-            if (jsonParseError.error == QJsonParseError::NoError || responseData.length() <= 3) {
+            if (jsonParseError.error == QJsonParseError::NoError) {
                 //qDebug() << "QNetworkReplyWrapper emit requestSucceeded" << jsonResponse << statusCode.toInt();
                 emit requestSucceeded(jsonResponse.toVariant(), statusCode.toInt());
             }
             else
             {
-                //qDebug() << "QNetworkReplyWrapper emit requestFailed" << responseData << statusCode.toInt();
-                emit requestFailed(QVariant(jsonParseError.errorString()),statusCode.toInt());
+                if (statusCode.toInt() == 200){
+                    // Empty reply or not json parsable
+                    emit requestSucceeded("", statusCode.toInt());
+                }else{
+                    //qDebug() << "QNetworkReplyWrapper emit requestFailed" << responseData << statusCode.toInt();
+                    emit requestFailed(QVariant(jsonParseError.errorString()),statusCode.toInt());
+                }
             }
         }
     }
