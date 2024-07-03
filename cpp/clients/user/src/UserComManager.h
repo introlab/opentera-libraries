@@ -128,16 +128,19 @@ private slots:
     void    onRefreshTokenTimeout();
 
 private:
-    QNetworkAccessManager *m_networkAccessManager;
-    UserWebSocketManager *m_websocketManager;
-    QString m_username;
-    QString m_password;
-    QString m_token;
-    QUrl m_serverUrl;
-    QTimer *m_refreshTokenTimer;
-    bool m_verifySsl;
-    QString m_clientName;
-    QString m_clientVersion;
+    QNetworkAccessManager*  m_networkAccessManager;
+    UserWebSocketManager*   m_websocketManager;
+    QString                 m_username;
+    QString                 m_password;
+    QString                 m_token;
+    QUrl                    m_serverUrl;
+    QTimer*                 m_refreshTokenTimer;
+    bool                    m_verifySsl;
+
+    QString                 m_clientName;
+    QString                 m_clientVersion;
+    QString                 m_osName;
+    QString                 m_osVersion;
 
     QNetworkReply* _doPost(const QUrl &url,
                            const QUrlQuery &query_args = QUrlQuery(),

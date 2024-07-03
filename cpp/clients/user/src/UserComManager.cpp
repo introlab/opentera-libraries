@@ -5,6 +5,7 @@
 #include <QJsonParseError>
 #include <QJsonArray>
 #include <QJsonValue>
+#include <QOperatingSystemVersion>
 #include "UserWebAPI.h"
 
 UserComManager::UserComManager(bool verify_ssl, QObject *parent)
@@ -19,6 +20,11 @@ UserComManager::UserComManager(bool verify_ssl, QObject *parent)
     m_networkAccessManager = new QNetworkAccessManager(this);
     m_websocketManager = new UserWebSocketManager(m_verifySsl, this);
     m_refreshTokenTimer = new QTimer(this);
+
+    // Get Operating system information to send to server for logging
+    QOperatingSystemVersion os = QOperatingSystemVersion::current();
+    m_osName = os.name();
+    m_osVersion = QString::number(os.majorVersion()) + "." + QString::number(os.minorVersion()) + "." + QString::number(os.microVersion());
 
     // Connect base signals
     connect(m_networkAccessManager, &QNetworkAccessManager::finished, this, &UserComManager::onNetworkFinished);
@@ -478,9 +484,9 @@ void UserComManager::_setRequestCredentials(QNetworkRequest &request, const bool
 void UserComManager::_setRequestVersions(QNetworkRequest &request)
 {
     request.setRawHeader("X-Client-Name", m_clientName.toUtf8());
-    request.setRawHeader("X-Client-Version", m_clientName.toUtf8());
-    request.setRawHeader("X-OS-Name", QString("Unknown").toUtf8());
-    request.setRawHeader("X-OS-Version", QString("Unknown").toUtf8());
+    request.setRawHeader("X-Client-Version", m_clientVersion.toUtf8());
+    request.setRawHeader("X-OS-Name", m_osName.toUtf8());
+    request.setRawHeader("X-OS-Version", m_osVersion.toUtf8());
 }
 
 void UserComManager::_setRequestExtraHeaders(QNetworkRequest &request, QMap<QString, QString> extra_headers)
