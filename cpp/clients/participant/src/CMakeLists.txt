@@ -5,11 +5,15 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS LinguistTools WebSockets 
 
 set(opentera_libs_client_participant_headers
     ParticipantClient.h
+    ParticipantComManager.h
+    ParticipantWebSocketManager.h
     ParticipantWebAPI.h
 )
 
 set(opentera_libs_client_participant_srcs
     ParticipantClient.cpp
+    ParticipantComManager.cpp
+    ParticipantWebSocketManager.cpp
     ParticipantWebAPI.cpp
 )
 
