@@ -268,6 +268,58 @@ void ParticipantComManager::login()
 
 }
 
+void ParticipantComManager::loginWithToken(const QString &token)
+{
+    QUrl url(m_serverUrl);
+    url.setPath(ParticipantWebAPI::ENDPOINT_PARTICIPANT_LOGIN);
+
+    m_token = token;
+
+    QUrlQuery args;
+    args.addQueryItem("with_websocket", "true");
+    QNetworkReply* reply = _doGet(url, args, QMap<QString, QString>(), false);
+
+    //Finished lambda
+    connect(reply, &QNetworkReply::finished, this, [reply, this]()
+            {
+                QByteArray responseData = reply->readAll();
+                qDebug() << responseData;
+
+                QJsonParseError jsonParseError;
+                QJsonDocument jsonResponse = QJsonDocument::fromJson(responseData, &jsonParseError);
+
+
+                QVariant statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+                //qDebug() << "login status code: " << statusCode;
+
+                if (statusCode.toInt() != 200)
+                {
+                    QString error = reply->errorString();
+                    if (statusCode.toInt() == 401)
+                        error = tr("Invalid token.");
+                    emit loginFailed(error);
+                }
+                else if (jsonParseError.error == QJsonParseError::NoError) {
+                    if (jsonResponse.isObject())
+                    {
+                        QJsonObject jsonObject = jsonResponse.object();
+                        QString websocketUrl = jsonObject["websocket_url"].toString();
+                        _connectWebSocket(QUrl(websocketUrl));
+                        emit loginSucceeded();
+                    }
+                }
+                else
+                {
+                    qDebug() << jsonParseError.errorString();
+                    emit loginFailed(jsonParseError.errorString());
+                }
+
+
+                //Done with reply
+                reply->deleteLater();
+            });
+}
+
 void ParticipantComManager::logout()
 {
     QUrl url(m_serverUrl);
