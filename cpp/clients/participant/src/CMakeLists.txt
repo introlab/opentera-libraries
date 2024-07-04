@@ -4,11 +4,13 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS LinguistTools WebSockets 
 
 
 set(opentera_libs_client_participant_headers
-
+    ParticipantClient.h
+    ParticipantWebAPI.h
 )
 
 set(opentera_libs_client_participant_srcs
-
+    ParticipantClient.cpp
+    ParticipantWebAPI.cpp
 )
 
 qt_add_qml_module(opentera_libs_client_participant_qml
