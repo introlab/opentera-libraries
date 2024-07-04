@@ -277,7 +277,7 @@ void ParticipantComManager::loginWithToken(const QString &token)
 
     QUrlQuery args;
     args.addQueryItem("with_websocket", "true");
-    QNetworkReply* reply = _doGet(url, args, QMap<QString, QString>(), false);
+    QNetworkReply* reply = _doGet(url, args, QMap<QString, QString>(), true);
 
     //Finished lambda
     connect(reply, &QNetworkReply::finished, this, [reply, this]()

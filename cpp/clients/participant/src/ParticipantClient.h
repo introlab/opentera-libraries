@@ -1,0 +1,105 @@
+#ifndef _PARTICIPANT_CLIENT_H_
+#define _PARTICIPANT_CLIENT_H_
+
+#include "QtQmlIntegration/qqmlintegration.h"
+#include <QObject>
+#include "ParticipantComManager.h"
+#include "QNetworkReplyWrapper.h"
+#include "FileDownloader.h"
+#include <QDebug>
+
+
+class ParticipantClient : public QObject
+{
+    Q_OBJECT
+    QML_ELEMENT
+    QML_SINGLETON
+
+    Q_PROPERTY(QString username READ getUsername WRITE setUsername NOTIFY usernameChanged)
+    Q_PROPERTY(QString password READ getPassword WRITE setPassword NOTIFY passwordChanged)
+    Q_PROPERTY(QUrl url READ getServerUrl WRITE setServerUrl NOTIFY serverUrlChanged)
+    Q_PROPERTY(QString token READ getToken WRITE setToken NOTIFY tokenChanged)
+    Q_PROPERTY(QString clientName READ getClientName WRITE setClientName NOTIFY clientNameChanged)
+    Q_PROPERTY(QString clientVersion READ getClientVersion WRITE setClientVersion NOTIFY clientVersionChanged)
+
+
+public:
+
+    explicit ParticipantClient(QObject *parent = nullptr);
+    virtual ~ParticipantClient() override;
+
+    Q_INVOKABLE void connect(const QUrl &url, const QString &username, const QString &password);
+    Q_INVOKABLE void connectWithToken(const QUrl &url, const QString staticToken);
+    Q_INVOKABLE void disconnect();
+    Q_INVOKABLE bool isConnected();
+    Q_INVOKABLE bool isWebAssembly();
+
+
+    Q_INVOKABLE QNetworkReplyWrapper* get(const QString &endpoint, const QVariantMap &params = QVariantMap(), const QVariantMap &extra_headers = QVariantMap());
+    Q_INVOKABLE QNetworkReplyWrapper* post(const QString &endpoint, const QVariantMap &params = QVariantMap(), const QVariantMap &data = QVariantMap(),
+                                           const QVariantMap &extra_headers = QVariantMap());
+    Q_INVOKABLE QNetworkReplyWrapper* deleteResource(const QString &endpoint, const QVariantMap &params = QVariantMap(), const QVariantMap &extra_headers = QVariantMap());
+
+    Q_INVOKABLE QNetworkReplyWrapper* download(const QString &endpoint, const QVariantMap &params = QVariantMap(), const QVariantMap &extra_headers = QVariantMap());
+
+#ifndef OPENTERA_WEBASSEMBLY
+    Q_INVOKABLE FileDownloader* downloadFile(const QString &filePath, const QString &endpoint, const QVariantMap &params = QVariantMap(), const QVariantMap &extra_headers = QVariantMap());
+
+#else
+    Q_INVOKABLE FileDownloader* downloadFile(const QString &filePath, const QString &endpoint, const QVariantMap &params = QVariantMap(), const QVariantMap &extra_headers = QVariantMap());
+#endif
+
+
+
+    //Getters and Setters
+    void setUsername(const QString &username);
+    QString getUsername();
+
+    void setPassword(const QString &password);
+    QString getPassword();
+
+    void setServerUrl(const QUrl &url);
+    QUrl getServerUrl();
+
+    void setToken(const QString &token);
+    QString getToken();
+
+    void setClientName(const QString &clientName);
+    QString getClientName();
+
+    void setClientVersion(const QString &clientVersion);
+    QString getClientVersion();
+
+signals:
+    // Special signals for login/logout
+    void loginSucceeded();
+    void loginFailed(const QString &errorMessage);
+    void logoutSucceeded();
+    void logoutFailed();
+
+    // Properties
+    void usernameChanged();
+    void passwordChanged();
+    void serverUrlChanged();
+    void tokenChanged();
+    void clientNameChanged();
+    void clientVersionChanged();
+
+    // From WebSocket
+    void websocketConnected();
+    void websocketDisconnected();
+    void deviceEvent(const opentera::protobuf::DeviceEvent &event);
+    void joinSessionEvent(const opentera::protobuf::JoinSessionEvent &event);
+    void joinSessionReplyEvent(const opentera::protobuf::JoinSessionReplyEvent &event);
+    void leaveSessionEvent(const opentera::protobuf::LeaveSessionEvent &event);
+    void participantEvent(const opentera::protobuf::ParticipantEvent &event);
+    void stopSessionEvent(const opentera::protobuf::StopSessionEvent &event);
+
+protected:
+
+    ParticipantComManager *m_comManager;
+
+};
+
+
+#endif // _PARTICIPANT_CLIENT_H_
