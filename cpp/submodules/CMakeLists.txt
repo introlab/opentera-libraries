@@ -67,7 +67,7 @@ qt_add_protobuf(opentera_libraries_messages
 )
 
 
-target_link_libraries(opentera_libraries_messages PUBLIC Qt6::Protobuf Qt6::ProtobufWellKnownTypes)
+target_link_libraries(opentera_libraries_messages PRIVATE Qt6::Protobuf Qt6::ProtobufWellKnownTypes)
 target_include_directories(opentera_libraries_messages PUBLIC
     ${CMAKE_CURRENT_BINARY_DIR}/proto
     ${CMAKE_CURRENT_BINARY_DIR}/proto/opentera/protobuf

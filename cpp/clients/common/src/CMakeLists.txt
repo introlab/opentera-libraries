@@ -1,12 +1,14 @@
 find_package(Qt${QT_VERSION_MAJOR}Core REQUIRED)
 
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS LinguistTools WebSockets Network)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS LinguistTools WebSockets Network Qml)
 
 set(opentera_libs_client_common_headers
     BaseComManager.h
     UploadingFile.h
     TransferringFile.h
     DownloadingFile.h
+    QNetworkReplyWrapper.h
+    FileDownloader.h
 )
 
 set(opentera_libs_client_common_srcs
@@ -14,6 +16,8 @@ set(opentera_libs_client_common_srcs
     UploadingFile.cpp
     TransferringFile.cpp
     DownloadingFile.cpp
+    QNetworkReplyWrapper.cpp
+    FileDownloader.cpp
 )
 
 set(OPENTERA_LIBS_COMMON_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "doc string")
@@ -22,4 +26,4 @@ set(OPENTERA_LIBS_COMMON_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "do
 qt_wrap_cpp(opentera_libs_client_common_moc_srcs ${opentera_libs_client_common_headers})
 
 add_library(opentera_libs_client_common STATIC ${opentera_libs_client_common_headers} ${opentera_libs_client_common_srcs} ${opentera_libs_client_common_moc_srcs})
-target_link_libraries(opentera_libs_client_common PUBLIC Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::WebSockets Qt${QT_VERSION_MAJOR}::Network)
+target_link_libraries(opentera_libs_client_common PUBLIC Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::WebSockets Qt${QT_VERSION_MAJOR}::Network Qt${QT_VERSION_MAJOR}::Qml)

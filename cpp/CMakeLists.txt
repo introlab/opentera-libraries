@@ -6,8 +6,6 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-qt_policy(SET QTP0001 NEW)
-
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -16,6 +14,8 @@ add_definitions(-DOPENTERA_CLIENT_VERSION="1.0")
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core LinguistTools QML)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core LinguistTools QML)
+
+qt_policy(SET QTP0001 NEW)
 
 set(TS_FILES opentera-libraries_en_CA.ts)
 
@@ -30,6 +30,15 @@ if(COMMAND qt_create_translation)
     qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 else()
     qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
+endif()
+
+#Verify if QT_QML_OUTPUT_DIRECTORY is defined
+if (NOT QT_QML_OUTPUT_DIRECTORY)
+    set(QT_QML_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/qml)
+    set(QML_IMPORT_PATH ${QT_QML_OUTPUT_DIRECTORY}
+        CACHE STRING "Import paths for Qt Creator's code model"
+        FORCE
+    )
 endif()
 
 add_subdirectory(submodules)

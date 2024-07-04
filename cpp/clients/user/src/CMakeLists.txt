@@ -8,8 +8,6 @@ set(opentera_libs_client_user_headers
     UserComManager.h
     UserWebSocketManager.h
     UserClient.h
-    QNetworkReplyWrapper.h
-    FileDownloader.h
 )
 
 set(opentera_libs_client_user_srcs
@@ -17,8 +15,6 @@ set(opentera_libs_client_user_srcs
     UserComManager.cpp
     UserWebSocketManager.cpp
     UserClient.cpp
-    QNetworkReplyWrapper.cpp
-    FileDownloader.cpp
 )
 
 qt_add_qml_module(opentera_libs_client_user_qml
@@ -34,7 +30,8 @@ target_link_libraries(opentera_libs_client_user_qml PUBLIC
     Qt${QT_VERSION_MAJOR}::Network
     Qt${QT_VERSION_MAJOR}::Qml
     opentera_libs_client_user
-    opentera_libraries_messages)
+    opentera_libraries_messages
+    opentera_libs_client_common)
 
 target_include_directories(opentera_libs_client_user_qml PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${OPENTERA_LIBS_COMMON_INCLUDES})
 
@@ -45,6 +42,7 @@ target_link_libraries(opentera_libs_client_user PUBLIC
     Qt${QT_VERSION_MAJOR}::WebSockets
     Qt${QT_VERSION_MAJOR}::Network
     Qt${QT_VERSION_MAJOR}::Qml
-    opentera_libraries_messages)
+    opentera_libraries_messages
+    opentera_libs_client_common)
 
 target_include_directories(opentera_libs_client_user PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${OPENTERA_LIBS_COMMON_INCLUDES})
