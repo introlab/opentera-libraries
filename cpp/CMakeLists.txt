@@ -44,7 +44,7 @@ endif()
 add_subdirectory(submodules)
 add_subdirectory(clients)
 
-message(STATUS "**** ${opentera_libs_client_user_headers}")
+message(STATUS "**** ${openteralibs_user_headers}")
 # qt_add_library(opentera_libs_qml STATIC)
 # qt_add_qml_module(opentera_libs_qml
 #     URI "OpenTeraLibs"

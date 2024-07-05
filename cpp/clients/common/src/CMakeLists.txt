@@ -2,7 +2,7 @@ find_package(Qt${QT_VERSION_MAJOR}Core REQUIRED)
 
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS LinguistTools WebSockets Network Qml)
 
-set(opentera_libs_client_common_headers
+set(openteralibs_common_headers
     BaseComManager.h
     UploadingFile.h
     TransferringFile.h
@@ -11,7 +11,7 @@ set(opentera_libs_client_common_headers
     FileDownloader.h
 )
 
-set(opentera_libs_client_common_srcs
+set(openteralibs_common_srcs
     BaseComManager.cpp
     UploadingFile.cpp
     TransferringFile.cpp
@@ -23,7 +23,7 @@ set(opentera_libs_client_common_srcs
 set(OPENTERA_LIBS_COMMON_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "doc string")
 
 #This will generate moc_* for Qt
-qt_wrap_cpp(opentera_libs_client_common_moc_srcs ${opentera_libs_client_common_headers})
+qt_wrap_cpp(openteralibs_common_moc_srcs ${openteralibs_common_headers})
 
-add_library(opentera_libs_client_common STATIC ${opentera_libs_client_common_headers} ${opentera_libs_client_common_srcs} ${opentera_libs_client_common_moc_srcs})
-target_link_libraries(opentera_libs_client_common PUBLIC Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::WebSockets Qt${QT_VERSION_MAJOR}::Network Qt${QT_VERSION_MAJOR}::Qml)
+add_library(openteralibs_common STATIC ${openteralibs_common_headers} ${openteralibs_common_srcs} ${openteralibs_common_moc_srcs})
+target_link_libraries(openteralibs_common PUBLIC Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::WebSockets Qt${QT_VERSION_MAJOR}::Network Qt${QT_VERSION_MAJOR}::Qml)

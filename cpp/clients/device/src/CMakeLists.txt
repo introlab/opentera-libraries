@@ -2,12 +2,12 @@ find_package(Qt${QT_VERSION_MAJOR}Core REQUIRED)
 
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS LinguistTools WebSockets Network)
 
-set(opentera_libs_client_device_headers
+set(openteralibs_device_headers
     DeviceComManager.h
     DeviceWebApi.h
 )
 
-set(opentera_libs_client_device_srcs
+set(openteralibs_device_srcs
     DeviceComManager.cpp
 )
 
@@ -16,7 +16,7 @@ include_directories(
 )
 
 #This will generate moc_* for Qt
-qt_wrap_cpp(opentera_libs_client_device_moc_srcs ${opentera_libs_client_device_headers})
+qt_wrap_cpp(openteralibs_device_moc_srcs ${openteralibs_device_headers})
 
-add_library(opentera_libs_client_device STATIC ${opentera_libs_client_device_headers} ${opentera_libs_client_device_srcs} ${opentera_libs_client_device_moc_srcs})
-target_link_libraries(opentera_libs_client_device PUBLIC Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::WebSockets Qt${QT_VERSION_MAJOR}::Network)
+add_library(openteralibs_device STATIC ${openteralibs_device_headers} ${openteralibs_device_srcs} ${openteralibs_device_moc_srcs})
+target_link_libraries(openteralibs_device PUBLIC Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::WebSockets Qt${QT_VERSION_MAJOR}::Network)

@@ -66,8 +66,12 @@ qt_add_protobuf(opentera_libraries_messages
     # QML_URI OpenTeraLibs.Protobuf
 )
 
+if (Qt6_VERSION VERSION_GREATER_EQUAL 6.7)
+    target_link_libraries(opentera_libraries_messages PRIVATE Qt6::Protobuf Qt6::ProtobufWellKnownTypes)
+else()
+    target_link_libraries(opentera_libraries_messages PUBLIC Qt6::Protobuf Qt6::ProtobufWellKnownTypes)
+endif()
 
-target_link_libraries(opentera_libraries_messages PRIVATE Qt6::Protobuf Qt6::ProtobufWellKnownTypes)
 target_include_directories(opentera_libraries_messages PUBLIC
     ${CMAKE_CURRENT_BINARY_DIR}/proto
     ${CMAKE_CURRENT_BINARY_DIR}/proto/opentera/protobuf
