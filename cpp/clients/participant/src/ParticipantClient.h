@@ -29,7 +29,7 @@ public:
     virtual ~ParticipantClient() override;
 
     Q_INVOKABLE void connect(const QUrl &url, const QString &username, const QString &password);
-    Q_INVOKABLE void connectWithToken(const QUrl &url, const QString staticToken);
+    Q_INVOKABLE void connectWithToken(const QUrl &url, const QString& staticToken, const bool& withWebsocket);
     Q_INVOKABLE void disconnect();
     Q_INVOKABLE bool isConnected();
     Q_INVOKABLE bool isWebAssembly();

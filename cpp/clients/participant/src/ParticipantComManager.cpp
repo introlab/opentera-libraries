@@ -268,15 +268,19 @@ void ParticipantComManager::login()
 
 }
 
-void ParticipantComManager::loginWithToken(const QString &token)
+void ParticipantComManager::loginWithToken(const QString &token, const QString& server_name, const bool& withWebsocket)
 {
+    m_serverUrl = server_name;
     QUrl url(m_serverUrl);
     url.setPath(ParticipantWebAPI::ENDPOINT_PARTICIPANT_LOGIN);
 
     m_token = token;
 
     QUrlQuery args;
-    args.addQueryItem("with_websocket", "true");
+    if (withWebsocket)
+        args.addQueryItem("with_websocket", "true");
+    else
+        args.addQueryItem("with_websocket", "false");
     QNetworkReply* reply = _doGet(url, args, QMap<QString, QString>(), true);
 
     //Finished lambda
@@ -304,7 +308,8 @@ void ParticipantComManager::loginWithToken(const QString &token)
                     {
                         QJsonObject jsonObject = jsonResponse.object();
                         QString websocketUrl = jsonObject["websocket_url"].toString();
-                        _connectWebSocket(QUrl(websocketUrl));
+                        if (!websocketUrl.isEmpty())
+                            _connectWebSocket(QUrl(websocketUrl));
                         emit loginSucceeded();
                     }
                 }

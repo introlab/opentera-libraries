@@ -45,10 +45,10 @@ void ParticipantClient::connect(const QUrl &url, const QString &username, const 
     m_comManager->loginToServer(username, password, url.toString());
 }
 
-void ParticipantClient::connectWithToken(const QUrl &url, const QString staticToken)
+void ParticipantClient::connectWithToken(const QUrl &url, const  QString& staticToken, const bool& withWebsocket)
 {
     qDebug() << "Connecting to server" << url.toString();
-    m_comManager->loginWithToken(staticToken);
+    m_comManager->loginWithToken(staticToken, url.toString(), withWebsocket);
 }
 
 
