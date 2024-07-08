@@ -41,6 +41,7 @@ public:
     Q_INVOKABLE QNetworkReplyWrapper* deleteResource(const QString &endpoint, const QVariantMap &params = QVariantMap(), const QVariantMap &extra_headers = QVariantMap());
 
     Q_INVOKABLE QNetworkReplyWrapper* download(const QString &endpoint, const QVariantMap &params = QVariantMap(), const QVariantMap &extra_headers = QVariantMap());
+    Q_INVOKABLE QNetworkReplyWrapper* upload(const QString &endpoint, const QString& filename, const QString &formfield_name, const QString& form_infos, const QVariantMap extra_headers = QVariantMap());
 
 #ifndef OPENTERA_WEBASSEMBLY
     Q_INVOKABLE FileDownloader* downloadFile(const QString &filePath, const QString &endpoint, const QVariantMap &params = QVariantMap(), const QVariantMap &extra_headers = QVariantMap());

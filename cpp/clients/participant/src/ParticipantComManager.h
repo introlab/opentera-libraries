@@ -76,6 +76,9 @@ public:
     //Download
     QNetworkReply* download(const QString &endpoint, const QVariantMap &params = QVariantMap(), const QVariantMap &extra_headers = QVariantMap());
 
+    //Upload
+    QNetworkReply* upload(const QString &endpoint, const QString& filename, const QString &formfield_name, const QString& form_infos, const QVariantMap extra_headers = QVariantMap());
+
 
     QJsonDocument downloadDocumentJson(const QString &endpoint, const QVariantMap &params = QVariantMap(), const QVariantMap &extra_headers = QVariantMap());
 
@@ -162,6 +165,13 @@ private:
                                const QUrlQuery &query_args = QUrlQuery(),
                                const QMap<QString,QString> & extra_headers = QMap<QString, QString>(),
                                bool use_token = true);
+
+    QNetworkReply* _doUpload(const QUrl &url,
+                             const QString& filename,
+                             const QString &formfield_name,
+                             const QString& form_infos,
+                             const QMap<QString,QString> & extra_headers = QMap<QString, QString>(),
+                             bool use_token = true);
 
     void _setRequestLanguage(QNetworkRequest &request);
     void _setRequestCredentials(QNetworkRequest &request, const bool &use_token);

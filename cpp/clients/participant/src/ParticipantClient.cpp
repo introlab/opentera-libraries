@@ -154,6 +154,12 @@ QNetworkReplyWrapper *ParticipantClient::download(const QString &endpoint, const
     return new QNetworkReplyWrapper(reply, false);
 }
 
+QNetworkReplyWrapper *ParticipantClient::upload(const QString &endpoint, const QString &filename, const QString &formfield_name, const QString &form_infos, const QVariantMap extra_headers)
+{
+    QNetworkReply *reply = m_comManager->upload(endpoint, filename, formfield_name, form_infos, extra_headers);
+    return new QNetworkReplyWrapper(reply, false);
+}
+
 #ifndef OPENTERA_WEBASSEMBLY
 FileDownloader *ParticipantClient::downloadFile(const QString &filePath, const QString &endpoint, const QVariantMap &params, const QVariantMap &extra_headers)
 {

@@ -6,6 +6,8 @@
 #include <QJsonArray>
 #include <QJsonValue>
 #include <QOperatingSystemVersion>
+#include <QFile>
+
 #include "ParticipantWebAPI.h"
 
 ParticipantComManager::ParticipantComManager(bool verify_ssl, QObject *parent)
@@ -144,6 +146,20 @@ QNetworkReply *ParticipantComManager::download(const QString &endpoint, const QV
     }
 
     return _doDownload(url, query_params, extra_headers_map, true);
+}
+
+QNetworkReply *ParticipantComManager::upload(const QString &endpoint, const QString &filename, const QString &formfield_name, const QString &form_infos, const QVariantMap extra_headers)
+{
+    QUrl url(m_serverUrl);
+    url.setPath(endpoint);
+
+    // Convert extra_headers to QMap<QString, QString>
+    QMap<QString, QString> extra_headers_map;
+    for (auto it = extra_headers.begin(); it != extra_headers.end(); ++it) {
+        extra_headers_map.insert(it.key(), it.value().toString());
+    }
+
+    return _doUpload(url, filename, formfield_name, form_infos, extra_headers_map);
 }
 
 QJsonDocument ParticipantComManager::downloadDocumentJson(const QString &endpoint, const QVariantMap &params, const QVariantMap &extra_headers)
@@ -502,6 +518,47 @@ QNetworkReply *ParticipantComManager::_doDownload(const QUrl &url, const QUrlQue
     _setRequestVersions(request);
     return m_networkAccessManager->get(request);
 
+}
+
+QNetworkReply *ParticipantComManager::_doUpload(const QUrl &url, const QString &filename, const QString &formfield_name, const QString &form_infos, const QMap<QString, QString> &extra_headers, bool use_token)
+{
+    QUrl query = url;
+    // Prepare request
+    QNetworkRequest request(query);
+    _setRequestExtraHeaders(request, extra_headers);
+    _setRequestCredentials(request, use_token);
+    _setRequestLanguage(request);
+    _setRequestVersions(request);
+
+    // Multipart construction
+    QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
+    // Must remove "/" from boundary or it won't work.
+    multiPart->setBoundary(QString(multiPart->boundary()).replace('/', '_').toLatin1());
+
+    QHttpPart formPart;
+    formPart.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/json"));
+    formPart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"" + formfield_name + "\""));
+    formPart.setBody(form_infos.toUtf8());
+
+    QHttpPart filePart;
+    filePart.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/octet-stream"));
+
+    // Create file to upload
+    QFile file(filename);
+    filePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"file\"; filename=\"" + file.fileName() + "\""));
+    filePart.setHeader(QNetworkRequest::ContentLengthHeader, QVariant(file.size()));
+
+    file.open(QIODevice::ReadOnly);
+    filePart.setBodyDevice(&file);
+
+    multiPart->append(formPart);
+    multiPart->append(filePart);
+
+    QNetworkReply* reply = m_networkAccessManager->post(request, multiPart);
+    if (reply)
+        multiPart->setParent(reply); // Delete with the reply
+
+    return reply;
 }
 
 void ParticipantComManager::_setRequestLanguage(QNetworkRequest &request)
