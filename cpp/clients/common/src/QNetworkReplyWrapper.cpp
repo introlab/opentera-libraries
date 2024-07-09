@@ -94,35 +94,31 @@ qint64 QNetworkReplyWrapper::write(const QByteArray &data)
 void QNetworkReplyWrapper::onRequestfinished()
 {
 
+    //qDebug() << "QNetworkReplyWrapper::onRequestfinished()";
+    QByteArray responseData = m_replyPtr->readAll();
+    //qDebug() << responseData;
+    QVariant statusCode = m_replyPtr->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+    if (statusCode.toInt() != 200)
+    {
+        //qDebug() << "QNetworkReplyWrapper emit requestFailed" << responseData << statusCode.toInt();
+        emit requestFailed(QVariant(responseData),statusCode.toInt());
+    }
     if (m_processJSON)
     {
-        //qDebug() << "QNetworkReplyWrapper::onRequestfinished()";
-        QByteArray responseData = m_replyPtr->readAll();
-        //qDebug() << responseData;
-        QVariant statusCode = m_replyPtr->attribute(QNetworkRequest::HttpStatusCodeAttribute);
-
-        if (statusCode.toInt() != 200)
-        {
-            //qDebug() << "QNetworkReplyWrapper emit requestFailed" << responseData << statusCode.toInt();
-            emit requestFailed(QVariant(responseData),statusCode.toInt());
+        QJsonParseError jsonParseError;
+        QJsonDocument jsonResponse = QJsonDocument::fromJson(responseData, &jsonParseError);
+        if (jsonParseError.error == QJsonParseError::NoError) {
+            //qDebug() << "QNetworkReplyWrapper emit requestSucceeded" << jsonResponse << statusCode.toInt();
+            emit requestSucceeded(jsonResponse.toVariant(), statusCode.toInt());
         }
         else
         {
-            QJsonParseError jsonParseError;
-            QJsonDocument jsonResponse = QJsonDocument::fromJson(responseData, &jsonParseError);
-            if (jsonParseError.error == QJsonParseError::NoError) {
-                //qDebug() << "QNetworkReplyWrapper emit requestSucceeded" << jsonResponse << statusCode.toInt();
-                emit requestSucceeded(jsonResponse.toVariant(), statusCode.toInt());
-            }
-            else
-            {
-                if (statusCode.toInt() == 200){
-                    // Empty reply or not json parsable
-                    emit requestSucceeded("", statusCode.toInt());
-                }else{
-                    //qDebug() << "QNetworkReplyWrapper emit requestFailed" << responseData << statusCode.toInt();
-                    emit requestFailed(QVariant(jsonParseError.errorString()),statusCode.toInt());
-                }
+            if (statusCode.toInt() == 200){
+                // Empty reply or not json parsable
+                emit requestSucceeded("", statusCode.toInt());
+            }else{
+                //qDebug() << "QNetworkReplyWrapper emit requestFailed" << responseData << statusCode.toInt();
+                emit requestFailed(QVariant(jsonParseError.errorString()),statusCode.toInt());
             }
         }
     }

@@ -7,6 +7,7 @@
 #include <QJsonValue>
 #include <QOperatingSystemVersion>
 #include <QFile>
+#include <QFileInfo>
 
 #include "ParticipantWebAPI.h"
 
@@ -295,15 +296,14 @@ void ParticipantComManager::loginWithToken(const QString &token, const QString& 
     QUrlQuery args;
     if (withWebsocket)
         args.addQueryItem("with_websocket", "true");
-    else
-        args.addQueryItem("with_websocket", "false");
+
     QNetworkReply* reply = _doGet(url, args, QMap<QString, QString>(), true);
 
     //Finished lambda
-    connect(reply, &QNetworkReply::finished, this, [reply, this]()
+    connect(reply, &QNetworkReply::finished, this, [reply, this, withWebsocket]()
             {
                 QByteArray responseData = reply->readAll();
-                qDebug() << responseData;
+                //qDebug() << responseData;
 
                 QJsonParseError jsonParseError;
                 QJsonDocument jsonResponse = QJsonDocument::fromJson(responseData, &jsonParseError);
@@ -324,7 +324,7 @@ void ParticipantComManager::loginWithToken(const QString &token, const QString& 
                     {
                         QJsonObject jsonObject = jsonResponse.object();
                         QString websocketUrl = jsonObject["websocket_url"].toString();
-                        if (!websocketUrl.isEmpty())
+                        if (withWebsocket)
                             _connectWebSocket(QUrl(websocketUrl));
                         emit loginSucceeded();
                     }
@@ -544,19 +544,25 @@ QNetworkReply *ParticipantComManager::_doUpload(const QUrl &url, const QString &
     filePart.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/octet-stream"));
 
     // Create file to upload
-    QFile file(filename);
-    filePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"file\"; filename=\"" + file.fileName() + "\""));
-    filePart.setHeader(QNetworkRequest::ContentLengthHeader, QVariant(file.size()));
+    QFile* file = new QFile(filename);
+    QFileInfo file_infos(filename);
+    filePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"file\"; filename=\"" + file_infos.fileName() + "\""));
+    filePart.setHeader(QNetworkRequest::ContentLengthHeader, QVariant(file_infos.size()));
 
-    file.open(QIODevice::ReadOnly);
-    filePart.setBodyDevice(&file);
+    if (!file->open(QIODevice::ReadOnly)){
+        qCritical() << "ParticipantComManager::_doUpload - Unable to open file";
+        return nullptr;
+    }
+    filePart.setBodyDevice(file);
 
     multiPart->append(formPart);
     multiPart->append(filePart);
 
     QNetworkReply* reply = m_networkAccessManager->post(request, multiPart);
-    if (reply)
+    if (reply){
         multiPart->setParent(reply); // Delete with the reply
+        file->setParent(reply);
+    }
 
     return reply;
 }
