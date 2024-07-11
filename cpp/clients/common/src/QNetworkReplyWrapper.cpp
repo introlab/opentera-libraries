@@ -102,6 +102,7 @@ void QNetworkReplyWrapper::onRequestfinished()
     {
         //qDebug() << "QNetworkReplyWrapper emit requestFailed" << responseData << statusCode.toInt();
         emit requestFailed(QVariant(responseData),statusCode.toInt());
+        return;
     }
     if (m_processJSON)
     {
