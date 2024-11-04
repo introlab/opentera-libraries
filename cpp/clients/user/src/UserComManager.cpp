@@ -218,7 +218,7 @@ void UserComManager::login()
     url.setPath(UserWebAPI::ENDPOINT_USER_LOGIN);
 
     QUrlQuery args;
-    args.addQueryItem("with_websockets", "true");
+    args.addQueryItem("with_websocket", "true");
     QNetworkReply* reply = _doGet(url, args, QMap<QString, QString>(), false);
 
     //Finished lambda
