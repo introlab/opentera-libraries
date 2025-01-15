@@ -203,13 +203,28 @@ QJsonDocument UserComManager::downloadDocumentJson(const QString &endpoint, cons
     return document;
 }
 
-void UserComManager::loginToServer(QString username, QString password, QString server_name)
+void UserComManager::loginToServer(const QString &username, const QString &password, const QString &server_name)
 {
     m_username = username;
     m_password = password;
     m_serverUrl = QUrl(server_name);
 
     login();
+}
+
+void UserComManager::connectWithToken(const QString &token, const QString &websocket_url, const QString &server_name)
+{
+    //Assuming the token is ok
+    m_serverUrl = QUrl(server_name);
+
+    setToken(token);
+
+    if (!websocket_url.isEmpty())
+    {
+        _connectWebSocket(QUrl(websocket_url));
+    }
+    emit loginSucceeded();
+    _startRefreshTokenTimer();
 }
 
 void UserComManager::login()

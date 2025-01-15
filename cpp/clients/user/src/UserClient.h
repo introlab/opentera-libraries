@@ -29,6 +29,9 @@ public:
     virtual ~UserClient() override;
 
     Q_INVOKABLE void connect(const QUrl &url, const QString &username, const QString &password);
+    Q_INVOKABLE void connectWithTokenUrl(const QUrl &full_url);
+
+
     Q_INVOKABLE void disconnect();
     Q_INVOKABLE bool isConnected();
     Q_INVOKABLE bool isWebAssembly();

@@ -81,7 +81,8 @@ public:
 
 public slots:
 
-    void loginToServer(QString username, QString password, QString server_name);
+    void loginToServer(const QString &username, const QString &password, const QString &server_name);
+    void connectWithToken(const QString &token, const QString &websocket_url, const QString& server_name);
     void login();
     void logout();
     void setToken(const QString &token);
