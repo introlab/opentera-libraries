@@ -240,7 +240,7 @@ void UserComManager::login()
     connect(reply, &QNetworkReply::finished, this, [reply, this]()
             {
                 QByteArray responseData = reply->readAll();
-                qDebug() << responseData;
+                //qDebug() << responseData;
 
                 QJsonParseError jsonParseError;
                 QJsonDocument jsonResponse = QJsonDocument::fromJson(responseData, &jsonParseError);
@@ -349,7 +349,7 @@ void UserComManager::onNetworkAuthenticationRequired(QNetworkReply *reply, QAuth
 {
     Q_UNUSED(reply)
 
-    qDebug() << "onNetworkAuthenticationRequired";
+    //qDebug() << "onNetworkAuthenticationRequired";
     authenticator->setUser(m_username);
     authenticator->setPassword(m_password);
 }
@@ -386,7 +386,7 @@ void UserComManager::onNetworkSslErrors(QNetworkReply *reply, const QList<QSslEr
 
 void UserComManager::onRefreshTokenTimeout()
 {
-    qDebug() << "onRefreshTokenTimeout";
+    //qDebug() << "onRefreshTokenTimeout";
     if (m_token.size() > 0)
     {
         _refreshToken();
@@ -543,18 +543,18 @@ void UserComManager::_refreshToken()
     connect(reply, &QNetworkReply::finished, this, [reply, this]()
             {
                 QByteArray responseData = reply->readAll();
-                qDebug() << responseData;
+                //qDebug() << responseData;
 
                 QJsonParseError jsonParseError;
                 QJsonDocument jsonResponse = QJsonDocument::fromJson(responseData, &jsonParseError);
 
 
                 QVariant statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
-                qDebug() << "_refreshToken status code: " << statusCode;
+                //qDebug() << "_refreshToken status code: " << statusCode;
 
                 if (statusCode.toInt() != 200)
                 {
-                    qDebug() << "error refreshing token";
+                    qDebug() << "Error refreshing token";
                 }
                 else if (jsonParseError.error == QJsonParseError::NoError) {
                     if (jsonResponse.isObject())

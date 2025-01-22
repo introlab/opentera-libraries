@@ -21,7 +21,7 @@ UserWebSocketManager::UserWebSocketManager(bool verify_ssl, QObject *parent)
 
 void UserWebSocketManager::connectTo(const QUrl &url)
 {
-    qDebug() << "UserWebSocketManager::connectTo " << url;
+    //qDebug() << "UserWebSocketManager::connectTo " << url;
     m_websocket->open(url);
 }
 
@@ -102,14 +102,14 @@ void UserWebSocketManager::onTextMessageReceived(const QString &message)
             }
 
             //Print Header
-            qDebug() << "Header: " << header.version() << " " << header.time() << " " << header.topic();
+            //qDebug() << "Header: " << header.version() << " " << header.time() << " " << header.topic();
             event.setHeader(header);
         }
 
         if (messageObject.contains("events"))
         {
             auto eventsArray = messageObject["events"].toArray();
-            qDebug() << "Events: " << eventsArray.size();
+            //qDebug() << "Events: " << eventsArray.size();
 
             for (auto eventValue : eventsArray)
             {
