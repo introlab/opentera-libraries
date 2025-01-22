@@ -28,8 +28,8 @@ public:
     explicit UserClient(QObject *parent = nullptr);
     virtual ~UserClient() override;
 
-    Q_INVOKABLE void connect(const QUrl &url, const QString &username, const QString &password);
-    Q_INVOKABLE void connectWithTokenUrl(const QUrl &full_url);
+    Q_INVOKABLE void connect(const QUrl &url, const QString &username, const QString &password, bool with_websocket=true);
+    Q_INVOKABLE void connectWithTokenUrl(const QUrl &full_url, bool with_websocket=true);
 
 
     Q_INVOKABLE void disconnect();

@@ -203,13 +203,13 @@ QJsonDocument UserComManager::downloadDocumentJson(const QString &endpoint, cons
     return document;
 }
 
-void UserComManager::loginToServer(const QString &username, const QString &password, const QString &server_name)
+void UserComManager::loginToServer(const QString &username, const QString &password, const QString &server_name, bool with_websocket)
 {
     m_username = username;
     m_password = password;
     m_serverUrl = QUrl(server_name);
 
-    login();
+    login(with_websocket);
 }
 
 void UserComManager::connectWithToken(const QString &token, const QString &websocket_url, const QString &server_name)
@@ -227,17 +227,21 @@ void UserComManager::connectWithToken(const QString &token, const QString &webso
     _startRefreshTokenTimer();
 }
 
-void UserComManager::login()
+void UserComManager::login(bool with_websocket)
 {
     QUrl url(m_serverUrl);
     url.setPath(UserWebAPI::ENDPOINT_USER_LOGIN);
 
     QUrlQuery args;
-    args.addQueryItem("with_websocket", "true");
+    if (with_websocket)
+    {
+        args.addQueryItem("with_websocket", "true");
+    }
+
     QNetworkReply* reply = _doGet(url, args, QMap<QString, QString>(), false);
 
     //Finished lambda
-    connect(reply, &QNetworkReply::finished, this, [reply, this]()
+    connect(reply, &QNetworkReply::finished, this, [reply, with_websocket, this]()
             {
                 QByteArray responseData = reply->readAll();
                 //qDebug() << responseData;
@@ -264,10 +268,12 @@ void UserComManager::login()
                         m_token = jsonObject["user_token"].toString();
                         //qDebug() << "token: " << m_token;
 
-
-                        QString websocketUrl = jsonObject["websocket_url"].toString();
-                        //qDebug() << "websocket_url: " << websocketUrl;
-                        _connectWebSocket(QUrl(websocketUrl));
+                        if (with_websocket)
+                        {
+                            QString websocketUrl = jsonObject["websocket_url"].toString();
+                            //qDebug() << "websocket_url: " << websocketUrl;
+                            _connectWebSocket(QUrl(websocketUrl));
+                        }
                         emit loginSucceeded();
                         _startRefreshTokenTimer();
                     }

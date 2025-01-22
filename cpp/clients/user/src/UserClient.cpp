@@ -42,19 +42,29 @@ UserClient::~UserClient()
     }
 }
 
-void UserClient::connect(const QUrl &url, const QString &username, const QString &password)
+void UserClient::connect(const QUrl &url, const QString &username, const QString &password, bool with_websocket)
 {
     qDebug() << "Connecting to server" << url.toString();
     m_comManager->loginToServer(username, password, url.toString());
 }
 
-void UserClient::connectWithTokenUrl(const QUrl &full_url)
+void UserClient::connectWithTokenUrl(const QUrl &full_url, bool with_websocket)
 {
     //Get the params from the Url to get the token and the websocket_url
     QUrl server_url = full_url.scheme() + "://" + full_url.host() + ":" + QString::number(full_url.port());
     QString token = QUrlQuery(full_url.query()).queryItemValue("token");
-    QString websocket_url = QUrlQuery(full_url.query()).queryItemValue("websocket_url");
-    m_comManager->connectWithToken(token, websocket_url, server_url.toString());
+
+
+    if (with_websocket)
+    {
+        QString websocket_url = QUrlQuery(full_url.query()).queryItemValue("websocket_url");
+        m_comManager->connectWithToken(token, websocket_url, server_url.toString());
+    }
+    else
+    {
+        m_comManager->connectWithToken(token, QUrl().toString(), server_url.toString());
+    }
+
 }
 
 void UserClient::disconnect() {
